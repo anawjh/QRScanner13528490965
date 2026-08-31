@@ -6,10 +6,10 @@
     <string name="menu_flash_settings">\uD83D\uDCA1 闪光灯设置</string>
     <string name="menu_contact">\uD83D\uDCDE 联系开发者</string>
     <string name="menu_switch_lang">\uD83C\uDF10 切换英文</string>
-    <string name="menu_auto_scan_on">\u2705 连续扫码：已开启</string>
-    <string name="menu_auto_scan_off">\u23F8 连续扫码：已关闭</string>
-    <string name="auto_scan_on">连续扫码已开启</string>
-    <string name="auto_scan_off">连续扫码已关闭</string>
+    <string name="menu_continuous_on">\u2705 连续扫码：已开启</string>
+    <string name="menu_continuous_off">\u23F8 连续扫码：已关闭</string>
+    <string name="continuous_on">连续扫码已开启</string>
+    <string name="continuous_off">连续扫码已关闭</string>
     <string name="scan_mode_camera">\uD83D\uDCF7 开始扫码</string>
     <string name="mode_camera">\uD83D\uDCF7 摄像头扫码模式</string>
     <string name="btn_export">\uD83D\uDCCA 导出Excel</string>

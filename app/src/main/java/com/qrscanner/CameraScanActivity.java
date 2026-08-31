@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -49,6 +51,8 @@ public class CameraScanActivity extends AppCompatActivity {
             String scanData = result.getText().trim();
             scanCount++;
             tvScanHint.setText(getString(R.string.scan_count, scanCount));
+
+            playBeep();
 
             Intent intent = new Intent(ACTION_SCAN_RESULT);
             intent.putExtra(EXTRA_SCAN_DATA, scanData);
@@ -120,6 +124,16 @@ public class CameraScanActivity extends AppCompatActivity {
         }
 
         updateFlashUI();
+    }
+
+    private void playBeep() {
+        try {
+            ToneGenerator tone = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80);
+            tone.startTone(ToneGenerator.TONE_PROP_BEEP2, 200);
+            tone.release();
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
     @Override

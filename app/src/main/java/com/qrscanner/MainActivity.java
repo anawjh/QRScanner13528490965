@@ -1,11 +1,12 @@
 package com.qrscanner;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.media.AudioManager;
-import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,14 +18,12 @@ import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.journeyapps.barcodescanner.ScanContract;
-import com.journeyapps.barcodescanner.ScanOptions;
 import com.qrscanner.databinding.ActivityMainBinding;
 
 import org.apache.poi.ss.usermodel.*;
@@ -41,6 +40,8 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 
     private static final String PREF_LANG = "app_lang";
+    private static final String PREF_SCAN = "scan_settings";
+    private static final String KEY_CONTINUOUS = "continuous_scan";
     private static final String LANG_ZH = "zh";
     private static final String LANG_EN = "en";
 
@@ -51,13 +52,17 @@ public class MainActivity extends AppCompatActivity {
     private ProjectManager projectManager;
     private ScanProject currentProject;
 
-    private final ActivityResultLauncher<ScanOptions> scanLauncher =
-        registerForActivityResult(new ScanContract(), result -> {
-            if (result.getContents() != null && !result.getContents().isEmpty()) {
-                playBeep();
-                addRecord(result.getContents(), "");
+    private final BroadcastReceiver scanReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (CameraScanActivity.ACTION_SCAN_RESULT.equals(intent.getAction())) {
+                String data = intent.getStringExtra(CameraScanActivity.EXTRA_SCAN_DATA);
+                if (data != null && !data.isEmpty()) {
+                    addRecord(data, "");
+                }
             }
-        });
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(scanReceiver,
+                new IntentFilter(CameraScanActivity.ACTION_SCAN_RESULT));
 
         projectManager = new ProjectManager(this);
         currentProject = projectManager.createNew();
@@ -79,35 +87,28 @@ public class MainActivity extends AppCompatActivity {
         updateProjectName();
     }
 
-    private void playBeep() {
-        try {
-            ToneGenerator tone = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80);
-            tone.startTone(ToneGenerator.TONE_PROP_BEEP2, 200);
-            tone.release();
-        } catch (Exception e) {
-            // ignore
-        }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(scanReceiver);
     }
 
     private void startScan() {
-        ScanOptions options = new ScanOptions();
-        options.setDesiredBarcodeFormats(ScanOptions.QR_CODE);
-        options.setPrompt(getString(R.string.hint_scan));
-        options.setBeepEnabled(false);
-        options.setOrientationLocked(true);
-        options.setCameraId(0);
+        Intent intent = new Intent(this, CameraScanActivity.class);
+        startActivity(intent);
+    }
 
-        String flashMode = getSharedPreferences(FlashSettingsActivity.PREF_NAME, MODE_PRIVATE)
-                .getString(FlashSettingsActivity.KEY_FLASH_MODE, FlashSettingsActivity.MODE_ON_SCAN);
+    private boolean isContinuousEnabled() {
+        SharedPreferences prefs = getSharedPreferences(PREF_SCAN, MODE_PRIVATE);
+        return prefs.getBoolean(KEY_CONTINUOUS, true);
+    }
 
-        if (flashMode.equals(FlashSettingsActivity.MODE_ALWAYS_ON) ||
-                flashMode.equals(FlashSettingsActivity.MODE_ON_SCAN)) {
-            options.setTorchEnabled(true);
-        } else {
-            options.setTorchEnabled(false);
-        }
-
-        scanLauncher.launch(options);
+    private void toggleContinuous() {
+        SharedPreferences prefs = getSharedPreferences(PREF_SCAN, MODE_PRIVATE);
+        boolean current = prefs.getBoolean(KEY_CONTINUOUS, true);
+        prefs.edit().putBoolean(KEY_CONTINUOUS, !current).apply();
+        Toast.makeText(this, !current ? getString(R.string.continuous_on) : getString(R.string.continuous_off),
+                Toast.LENGTH_SHORT).show();
     }
 
     private void setupRecyclerView() {
@@ -127,6 +128,12 @@ public class MainActivity extends AppCompatActivity {
             popup.getMenu().add(0, 10, 0, getString(R.string.menu_new_project));
             popup.getMenu().add(0, 11, 0, getString(R.string.menu_open_project));
             popup.getMenu().add(0, 12, 0, getString(R.string.menu_flash_settings));
+
+            boolean on = isContinuousEnabled();
+            popup.getMenu().add(0, 15, 0, on
+                ? getString(R.string.menu_continuous_on)
+                : getString(R.string.menu_continuous_off));
+
             popup.getMenu().add(0, 14, 0, getString(R.string.menu_switch_lang));
             popup.getMenu().add(0, 99, 0, "──────────");
             popup.getMenu().add(0, 3, 0, getString(R.string.menu_contact));
@@ -137,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
                     case 11: showOpenProjectDialog(); return true;
                     case 12: openFlashSettings(); return true;
                     case 14: toggleLanguage(); return true;
+                    case 15: toggleContinuous(); return true;
                     case 3: showContactDialog(); return true;
                 }
                 return false;

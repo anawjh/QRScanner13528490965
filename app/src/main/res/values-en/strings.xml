@@ -6,10 +6,10 @@
     <string name="menu_flash_settings">\uD83D\uDCA1 Flash Settings</string>
     <string name="menu_contact">\uD83D\uDCDE Contact Developer</string>
     <string name="menu_switch_lang">\uD83C\uDF10 Switch to Chinese</string>
-    <string name="menu_auto_scan_on">\u2705 Auto Scan: ON</string>
-    <string name="menu_auto_scan_off">\u23F8 Auto Scan: OFF</string>
-    <string name="auto_scan_on">Auto scan enabled</string>
-    <string name="auto_scan_off">Auto scan disabled</string>
+    <string name="menu_continuous_on">\u2705 Continuous Scan: ON</string>
+    <string name="menu_continuous_off">\u23F8 Continuous Scan: OFF</string>
+    <string name="continuous_on">Continuous scan enabled</string>
+    <string name="continuous_off">Continuous scan disabled</string>
     <string name="scan_mode_camera">\uD83D\uDCF7 Start Scanning</string>
     <string name="mode_camera">\uD83D\uDCF7 Camera Scan Mode</string>
     <string name="btn_export">\uD83D\uDCCA Export Excel</string>
