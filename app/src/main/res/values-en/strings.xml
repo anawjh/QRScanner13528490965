@@ -13,7 +13,7 @@
     <string name="scan_mode_camera">\uD83D\uDCF7 Start Scanning</string>
     <string name="mode_camera">\uD83D\uDCF7 Camera Scan Mode</string>
     <string name="btn_export">\uD83D\uDCCA Export Excel</string>
-    <string name="btn_clear">\uD83D\uDDD\uFE0F</string>
+    <string name="btn_clear">X</string>
     <string name="list_title">Scan Records</string>
     <string name="empty_hint">No scan records yet\nTap "Start Scanning" to begin</string>
     <string name="contact_title">Contact Developer</string>
