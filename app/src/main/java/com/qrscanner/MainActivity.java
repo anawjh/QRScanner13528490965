@@ -1,9 +1,7 @@
 package com.qrscanner;
 
-import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -19,14 +17,13 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 import com.qrscanner.databinding.ActivityMainBinding;
 
 import org.apache.poi.ss.usermodel.*;
@@ -45,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREF_LANG = "app_lang";
     private static final String LANG_ZH = "zh";
     private static final String LANG_EN = "en";
-    private static final int REQ_CAMERA = 100;
 
     private ActivityMainBinding binding;
     private ScanRecordAdapter adapter;
@@ -54,7 +50,12 @@ public class MainActivity extends AppCompatActivity {
     private ProjectManager projectManager;
     private ScanProject currentProject;
 
-    private ActivityResultLauncher<Intent> cameraScanLauncher;
+    private final ActivityResultLauncher<ScanOptions> scanLauncher =
+        registerForActivityResult(new ScanContract(), result -> {
+            if (result.getContents() != null && !result.getContents().isEmpty()) {
+                addRecord(result.getContents(), "");
+            }
+        });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,18 +65,6 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        cameraScanLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        String scanResult = result.getData().getStringExtra(
-                                CameraScanActivity.EXTRA_SCAN_RESULT);
-                        if (scanResult != null && !scanResult.isEmpty()) {
-                            addRecord(scanResult, "");
-                        }
-                    }
-                });
 
         projectManager = new ProjectManager(this);
         currentProject = projectManager.createNew();
@@ -87,29 +76,34 @@ public class MainActivity extends AppCompatActivity {
         updateCounter();
         updateProjectName();
 
-        requestCameraPermissionAndScan();
+        binding.getRoot().postDelayed(this::startScan, 500);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQ_CAMERA) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                openCameraScan();
-            } else {
-                Toast.makeText(this, getString(R.string.camera_permission_denied), Toast.LENGTH_LONG).show();
-            }
-        }
+    public void onResume() {
+        super.onResume();
     }
 
-    private void requestCameraPermissionAndScan() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.CAMERA}, REQ_CAMERA);
+    private void startScan() {
+        ScanOptions options = new ScanOptions();
+        options.setDesiredBarcodeFormats(ScanOptions.QR_CODE);
+        options.setPrompt(getString(R.string.hint_scan));
+        options.setBeepEnabled(false);
+        options.setOrientationLocked(true);
+        options.setCameraId(0);
+
+        String flashMode = getSharedPreferences(FlashSettingsActivity.PREF_NAME, MODE_PRIVATE)
+                .getString(FlashSettingsActivity.KEY_FLASH_MODE, FlashSettingsActivity.MODE_ON_SCAN);
+
+        if (flashMode.equals(FlashSettingsActivity.MODE_ALWAYS_ON)) {
+            options.setTorchEnabled(true);
+        } else if (flashMode.equals(FlashSettingsActivity.MODE_ON_SCAN)) {
+            options.setTorchEnabled(true);
         } else {
-            openCameraScan();
+            options.setTorchEnabled(false);
         }
+
+        scanLauncher.launch(options);
     }
 
     private void setupRecyclerView() {
@@ -119,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupButtons() {
-        binding.btnScan.setOnClickListener(v -> openCameraScan());
+        binding.btnScan.setOnClickListener(v -> startScan());
 
         binding.btnExport.setOnClickListener(v -> exportToExcel());
         binding.btnClear.setOnClickListener(v -> showClearConfirmDialog());
@@ -184,17 +178,6 @@ public class MainActivity extends AppCompatActivity {
     private void openFlashSettings() {
         Intent intent = new Intent(this, FlashSettingsActivity.class);
         startActivity(intent);
-    }
-
-    private void openCameraScan() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.CAMERA}, REQ_CAMERA);
-            return;
-        }
-        Intent intent = new Intent(this, CameraScanActivity.class);
-        cameraScanLauncher.launch(intent);
     }
 
     // ======================== Project ========================
@@ -453,10 +436,5 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Toast.makeText(this, getString(R.string.export_failed, e.getMessage()), Toast.LENGTH_LONG).show();
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 }

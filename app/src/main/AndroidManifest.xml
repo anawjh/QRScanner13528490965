@@ -32,11 +32,6 @@
         </activity>
 
         <activity
-            android:name=".CameraScanActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|screenSize" />
-
-        <activity
             android:name=".FlashSettingsActivity"
             android:screenOrientation="portrait" />
 
