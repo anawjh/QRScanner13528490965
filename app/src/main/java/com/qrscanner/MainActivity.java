@@ -1,15 +1,16 @@
 package com.qrscanner;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -18,12 +19,14 @@ import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 import com.qrscanner.databinding.ActivityMainBinding;
 
 import org.apache.poi.ss.usermodel.*;
@@ -52,17 +55,21 @@ public class MainActivity extends AppCompatActivity {
     private ProjectManager projectManager;
     private ScanProject currentProject;
 
-    private final BroadcastReceiver scanReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (CameraScanActivity.ACTION_SCAN_RESULT.equals(intent.getAction())) {
-                String data = intent.getStringExtra(CameraScanActivity.EXTRA_SCAN_DATA);
-                if (data != null && !data.isEmpty()) {
-                    addRecord(data, "");
+    private boolean autoContinueEnabled = true;
+    private boolean userStopped = false;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    private final ActivityResultLauncher<ScanOptions> scanLauncher =
+        registerForActivityResult(new ScanContract(), result -> {
+            if (result.getContents() != null && !result.getContents().isEmpty()) {
+                playBeep();
+                addRecord(result.getContents(), "");
+
+                if (autoContinueEnabled && !userStopped) {
+                    mainHandler.postDelayed(this::startScan, 1200);
                 }
             }
-        }
-    };
+        });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,8 +80,8 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(scanReceiver,
-                new IntentFilter(CameraScanActivity.ACTION_SCAN_RESULT));
+        autoContinueEnabled = isContinuousEnabled();
+        userStopped = false;
 
         projectManager = new ProjectManager(this);
         currentProject = projectManager.createNew();
@@ -85,17 +92,50 @@ public class MainActivity extends AppCompatActivity {
         setupButtons();
         updateCounter();
         updateProjectName();
+
+        binding.getRoot().postDelayed(this::startScan, 500);
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(scanReceiver);
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mainHandler.removeCallbacksAndMessages(null);
+    }
+
+    private void playBeep() {
+        try {
+            ToneGenerator tone = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80);
+            tone.startTone(ToneGenerator.TONE_PROP_BEEP2, 200);
+            tone.release();
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
     private void startScan() {
-        Intent intent = new Intent(this, CameraScanActivity.class);
-        startActivity(intent);
+        ScanOptions options = new ScanOptions();
+        options.setDesiredBarcodeFormats(ScanOptions.QR_CODE);
+        options.setPrompt(getString(R.string.hint_scan));
+        options.setBeepEnabled(false);
+        options.setOrientationLocked(true);
+        options.setCameraId(0);
+
+        String flashMode = getSharedPreferences(FlashSettingsActivity.PREF_NAME, MODE_PRIVATE)
+                .getString(FlashSettingsActivity.KEY_FLASH_MODE, FlashSettingsActivity.MODE_ON_SCAN);
+
+        if (flashMode.equals(FlashSettingsActivity.MODE_ALWAYS_ON) ||
+                flashMode.equals(FlashSettingsActivity.MODE_ON_SCAN)) {
+            options.setTorchEnabled(true);
+        } else {
+            options.setTorchEnabled(false);
+        }
+
+        scanLauncher.launch(options);
     }
 
     private boolean isContinuousEnabled() {
@@ -106,9 +146,13 @@ public class MainActivity extends AppCompatActivity {
     private void toggleContinuous() {
         SharedPreferences prefs = getSharedPreferences(PREF_SCAN, MODE_PRIVATE);
         boolean current = prefs.getBoolean(KEY_CONTINUOUS, true);
-        prefs.edit().putBoolean(KEY_CONTINUOUS, !current).apply();
-        Toast.makeText(this, !current ? getString(R.string.continuous_on) : getString(R.string.continuous_off),
-                Toast.LENGTH_SHORT).show();
+        autoContinueEnabled = !current;
+        userStopped = false;
+        prefs.edit().putBoolean(KEY_CONTINUOUS, autoContinueEnabled).apply();
+        Toast.makeText(this, autoContinueEnabled
+            ? getString(R.string.continuous_on)
+            : getString(R.string.continuous_off),
+            Toast.LENGTH_SHORT).show();
     }
 
     private void setupRecyclerView() {
@@ -118,7 +162,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupButtons() {
-        binding.btnScan.setOnClickListener(v -> startScan());
+        binding.btnScan.setOnClickListener(v -> {
+            userStopped = false;
+            startScan();
+        });
 
         binding.btnExport.setOnClickListener(v -> exportToExcel());
         binding.btnClear.setOnClickListener(v -> showClearConfirmDialog());
