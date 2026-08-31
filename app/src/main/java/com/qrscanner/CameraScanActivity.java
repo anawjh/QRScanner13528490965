@@ -128,18 +128,10 @@ public class CameraScanActivity extends AppCompatActivity {
 
     private void playBeep() {
         SharedPreferences prefs = getSharedPreferences("scan_settings", MODE_PRIVATE);
-        int toneType = prefs.getInt("tone_type", 0);
+        int duration = prefs.getInt("beep_duration", 500);
         try {
             ToneGenerator tone = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
-            switch (toneType) {
-                case 0: tone.startTone(ToneGenerator.TONE_PROP_ACK, 300); break;
-                case 1: tone.startTone(ToneGenerator.TONE_PROP_BEEP2, 300); break;
-                case 2: tone.startTone(ToneGenerator.TONE_PROP_BEEP, 300); break;
-                case 3: tone.startTone(ToneGenerator.TONE_PROP_PROMPT, 300); break;
-                case 4: tone.startTone(ToneGenerator.TONE_PROP_NACK, 300); break;
-                case 5: tone.startTone(ToneGenerator.TONE_SUP_BUSY, 300); break;
-                default: tone.startTone(ToneGenerator.TONE_PROP_ACK, 300); break;
-            }
+            tone.startTone(ToneGenerator.TONE_PROP_ACK, duration);
             tone.release();
         } catch (Exception e) {
             // ignore

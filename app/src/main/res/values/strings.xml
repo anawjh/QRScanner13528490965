@@ -43,12 +43,9 @@
     <string name="export_ok_title">导出成功</string>
     <string name="share">分享</string>
     <string name="export_failed">导出失败: %s</string>
-    <string name="menu_sound_settings">\uD83D\uDD0A 音色设置</string>
-    <string name="sound_sharp">\uD83D\uDD14 滴 — 尖锐清脆</string>
-    <string name="sound_dull">\uD83D\uDD14 嘟 — 低沉浑厚</string>
-    <string name="sound_standard">\uD83D\uDD14 哔 — 标准提示</string>
-    <string name="sound_prompt">\uD83D\uDD14 叮 — 柔和提示</string>
-    <string name="sound_nack">\uD83D\uDD14 嘀 — 短促确认</string>
-    <string name="sound_drop">\uD83D\uDD14 嗒 — 低音提醒</string>
+    <string name="menu_sound_settings">\uD83D\uDD0A 声音设置</string>
+    <string name="beep_short">\uD83D\uDD14 短促（0.3秒）</string>
+    <string name="beep_medium">\uD83D\uDD14 适中（0.5秒）\u2B50 默认</string>
+    <string name="beep_long">\uD83D\uDD14 最响（1秒）</string>
     <string name="sound_off">\uD83D\uDD07 关闭声音</string>
 </resources>
