@@ -9,7 +9,7 @@
     <string name="scan_mode_camera">\uD83D\uDCF7 开始扫码</string>
     <string name="mode_camera">\uD83D\uDCF7 摄像头扫码模式</string>
     <string name="btn_export">\uD83D\uDCCA 导出Excel</string>
-    <string name="btn_clear">\uD83D\uDDD\uFE0F</string>
+    <string name="btn_clear">🗑</string>
     <string name="list_title">扫码记录</string>
     <string name="empty_hint">暂无扫码记录\n点击「开始扫码」开始扫描</string>
     <string name="contact_title">联系开发者</string>
