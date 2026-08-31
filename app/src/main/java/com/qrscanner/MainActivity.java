@@ -4,8 +4,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.media.AudioManager;
-import android.media.ToneGenerator;
+import android.media.AudioAttributes;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -111,10 +112,20 @@ public class MainActivity extends AppCompatActivity {
     private void playBeep() {
         SharedPreferences prefs = getSharedPreferences(PREF_SCAN, MODE_PRIVATE);
         int duration = prefs.getInt(KEY_BEEP_DURATION, 500);
+        if (duration == 0) return;
         try {
-            ToneGenerator tone = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
-            tone.startTone(ToneGenerator.TONE_PROP_ACK, duration);
-            tone.release();
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            if (notification == null) return;
+            Ringtone ringtone = RingtoneManager.getRingtone(this, notification);
+            if (ringtone == null) return;
+            ringtone.setAudioAttributes(new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build());
+            ringtone.play();
+            mainHandler.postDelayed(() -> {
+                try { ringtone.stop(); } catch (Exception ignored) {}
+            }, duration);
         } catch (Exception e) {
             // ignore
         }

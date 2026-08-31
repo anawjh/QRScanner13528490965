@@ -48,4 +48,5 @@
     <string name="beep_medium">\uD83D\uDD14 适中（0.5秒）\u2B50 默认</string>
     <string name="beep_long">\uD83D\uDD14 最响（1秒）</string>
     <string name="sound_off">\uD83D\uDD07 关闭声音</string>
+    <string name="sound_hint">使用手机通知铃声，长度可调</string>
 </resources>

@@ -4,8 +4,10 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.media.AudioManager;
-import android.media.ToneGenerator;
+import android.media.AudioAttributes;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -129,10 +131,20 @@ public class CameraScanActivity extends AppCompatActivity {
     private void playBeep() {
         SharedPreferences prefs = getSharedPreferences("scan_settings", MODE_PRIVATE);
         int duration = prefs.getInt("beep_duration", 500);
+        if (duration == 0) return;
         try {
-            ToneGenerator tone = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
-            tone.startTone(ToneGenerator.TONE_PROP_ACK, duration);
-            tone.release();
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            if (notification == null) return;
+            Ringtone ringtone = RingtoneManager.getRingtone(this, notification);
+            if (ringtone == null) return;
+            ringtone.setAudioAttributes(new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build());
+            ringtone.play();
+            new android.os.Handler().postDelayed(() -> {
+                try { ringtone.stop(); } catch (Exception ignored) {}
+            }, duration);
         } catch (Exception e) {
             // ignore
         }
