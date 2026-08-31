@@ -43,4 +43,12 @@
     <string name="export_ok_title">Export OK</string>
     <string name="share">Share</string>
     <string name="export_failed">Export failed: %s</string>
+    <string name="menu_sound_settings">\uD83D\uDD0A Sound Settings</string>
+    <string name="sound_sharp">\uD83D\uDD14 Sharp — crisp beep</string>
+    <string name="sound_dull">\uD83D\uDD14 Dull — deep tone</string>
+    <string name="sound_standard">\uD83D\uDD14 Standard — default beep</string>
+    <string name="sound_prompt">\uD83D\uDD14 Soft — gentle chime</string>
+    <string name="sound_nack">\uD83D\uDD14 Quick — short confirm</string>
+    <string name="sound_drop">\uD83D\uDD14 Low — bass reminder</string>
+    <string name="sound_off">\uD83D\uDD07 Mute</string>
 </resources>

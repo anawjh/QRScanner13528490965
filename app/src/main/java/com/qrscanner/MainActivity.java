@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREF_LANG = "app_lang";
     private static final String PREF_SCAN = "scan_settings";
     private static final String KEY_CONTINUOUS = "continuous_scan";
+    private static final String KEY_TONE_TYPE = "tone_type";
     private static final String LANG_ZH = "zh";
     private static final String LANG_EN = "en";
 
@@ -108,9 +109,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void playBeep() {
+        SharedPreferences prefs = getSharedPreferences(PREF_SCAN, MODE_PRIVATE);
+        int toneType = prefs.getInt(KEY_TONE_TYPE, 0);
         try {
             ToneGenerator tone = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
-            tone.startTone(ToneGenerator.TONE_PROP_BEEP2, 300);
+            switch (toneType) {
+                case 0: tone.startTone(ToneGenerator.TONE_PROP_ACK, 300); break;
+                case 1: tone.startTone(ToneGenerator.TONE_PROP_BEEP2, 300); break;
+                case 2: tone.startTone(ToneGenerator.TONE_PROP_BEEP, 300); break;
+                case 3: tone.startTone(ToneGenerator.TONE_PROP_PROMPT, 300); break;
+                case 4: tone.startTone(ToneGenerator.TONE_PROP_NACK, 300); break;
+                case 5: tone.startTone(ToneGenerator.TONE_CDMA_DROP, 300); break;
+                default: tone.startTone(ToneGenerator.TONE_PROP_ACK, 300); break;
+            }
             tone.release();
         } catch (Exception e) {
             // ignore
@@ -155,6 +166,32 @@ public class MainActivity extends AppCompatActivity {
             Toast.LENGTH_SHORT).show();
     }
 
+    private void showSoundPickerDialog() {
+        String[] items = {
+            getString(R.string.sound_sharp),
+            getString(R.string.sound_dull),
+            getString(R.string.sound_standard),
+            getString(R.string.sound_prompt),
+            getString(R.string.sound_nack),
+            getString(R.string.sound_drop),
+            getString(R.string.sound_off)
+        };
+        SharedPreferences prefs = getSharedPreferences(PREF_SCAN, MODE_PRIVATE);
+        int current = prefs.getInt(KEY_TONE_TYPE, 0);
+
+        new AlertDialog.Builder(this)
+            .setTitle(getString(R.string.menu_sound_settings))
+            .setSingleChoiceItems(items, current, (dialog, which) -> {
+                prefs.edit().putInt(KEY_TONE_TYPE, which).apply();
+                dialog.dismiss();
+                if (which < 6) {
+                    playBeep();
+                }
+            })
+            .setNegativeButton(android.R.string.cancel, null)
+            .show();
+    }
+
     private void setupRecyclerView() {
         adapter = new ScanRecordAdapter(records, this::onDeleteRecord, this::onEditRemark);
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -181,6 +218,7 @@ public class MainActivity extends AppCompatActivity {
                 ? getString(R.string.menu_continuous_on)
                 : getString(R.string.menu_continuous_off));
 
+            popup.getMenu().add(0, 16, 0, getString(R.string.menu_sound_settings));
             popup.getMenu().add(0, 14, 0, getString(R.string.menu_switch_lang));
             popup.getMenu().add(0, 99, 0, "──────────");
             popup.getMenu().add(0, 3, 0, getString(R.string.menu_contact));
@@ -192,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
                     case 12: openFlashSettings(); return true;
                     case 14: toggleLanguage(); return true;
                     case 15: toggleContinuous(); return true;
+                    case 16: showSoundPickerDialog(); return true;
                     case 3: showContactDialog(); return true;
                 }
                 return false;
