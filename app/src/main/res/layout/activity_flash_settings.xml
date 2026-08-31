@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F7FA">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1565C0"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:elevation="4dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="💡 闪光灯设置"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:layout_marginTop="16dp"
+        android:background="#FFFFFF"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:elevation="2dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="闪光灯模式"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:layout_marginBottom="16dp" />
+
+        <RadioGroup
+            android:id="@+id/rgFlashMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/rbAlwaysOn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="常灯（常亮）"
+                android:textSize="15sp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="打开扫码页面后闪光灯一直亮，直到关闭扫码页面才灭"
+                android:textSize="12sp"
+                android:textColor="#888888"
+                android:paddingStart="32dp"
+                android:layout_marginBottom="16dp" />
+
+            <RadioButton
+                android:id="@+id/rbOnScan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="扫码时亮"
+                android:textSize="15sp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="打开扫码页面后闪光灯亮，扫码成功后自动灭灯"
+                android:textSize="12sp"
+                android:textColor="#888888"
+                android:paddingStart="32dp"
+                android:layout_marginBottom="16dp" />
+
+            <RadioButton
+                android:id="@+id/rbOff"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="关闭"
+                android:textSize="15sp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="扫码时不开闪光灯"
+                android:textSize="12sp"
+                android:textColor="#888888"
+                android:paddingStart="32dp" />
+
+        </RadioGroup>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="24dp"
+        android:text="保存设置"
+        android:textSize="16sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#1565C0"
+        android:stateListAnimator="@null" />
+
+</LinearLayout>

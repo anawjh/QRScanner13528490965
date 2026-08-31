@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="4dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <!-- 序号圆圈 -->
+        <TextView
+            android:id="@+id/tvSeq"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/circle_bg"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:text="1" />
+
+        <!-- 内容区 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp">
+
+            <TextView
+                android:id="@+id/tvContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:textColor="#212121"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:text="二维码内容" />
+
+            <TextView
+                android:id="@+id/tvTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="11sp"
+                android:textColor="#9E9E9E"
+                android:layout_marginTop="3dp"
+                android:text="2024-01-01 12:00:00" />
+
+            <TextView
+                android:id="@+id/tvRemark"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="11sp"
+                android:textColor="#1565C0"
+                android:layout_marginTop="2dp"
+                android:visibility="gone"
+                android:text="备注: " />
+        </LinearLayout>
+
+        <!-- 操作按钮 -->
+        <ImageButton
+            android:id="@+id/btnEdit"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_edit"
+            android:contentDescription="编辑备注"
+            android:tint="#1976D2" />
+
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_delete"
+            android:contentDescription="删除"
+            android:tint="#E53935" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

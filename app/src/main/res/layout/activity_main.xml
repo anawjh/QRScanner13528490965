@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F7FA">
+
+    <!-- 顶部标题栏（带 ⋮ 菜单） -->
+    <RelativeLayout
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#1565C0"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:elevation="4dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📦 批量扫码工具"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvCounter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="已扫: 0 条"
+                android:textColor="#BBDEFB"
+                android:textSize="13sp"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnMenu"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            style="?android:attr/borderlessButtonStyle"
+            android:text="⋮"
+            android:textSize="24sp"
+            android:textColor="#FFFFFF"
+            android:contentDescription="菜单" />
+    </RelativeLayout>
+
+    <!-- 模式栏 -->
+    <TextView
+        android:id="@+id/tvModeBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="🔫 当前模式：PDA激光扫码"
+        android:textSize="12sp"
+        android:textColor="#FFFFFF"
+        android:background="#6A1B9A"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="2dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 项目名 -->
+    <TextView
+        android:id="@+id/tvProjectName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="11sp"
+        android:textColor="#E1BEE7"
+        android:background="#6A1B9A"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="6dp"
+        app:layout_constraintTop_toBottomOf="@id/tvModeBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 按钮区域 -->
+    <LinearLayout
+        android:id="@+id/btnLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/tvProjectName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+            android:id="@+id/btnScan"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            android:text="🔫 PDA模式已启动"
+            android:textSize="15sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#6A1B9A"
+            android:stateListAnimator="@null" />
+
+        <Button
+            android:id="@+id/btnExport"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            android:text="📊 导出Excel"
+            android:textSize="15sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#2E7D32"
+            android:enabled="false"
+            android:stateListAnimator="@null" />
+
+        <Button
+            android:id="@+id/btnClear"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="0.7"
+            android:layout_marginStart="6dp"
+            android:text="🗑️"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#C62828"
+            android:enabled="false"
+            android:stateListAnimator="@null" />
+    </LinearLayout>
+
+    <!-- 列表标题 -->
+    <TextView
+        android:id="@+id/tvListTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="扫码记录"
+        android:textSize="13sp"
+        android:textColor="#757575"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="6dp"
+        app:layout_constraintTop_toBottomOf="@id/btnLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 空状态 -->
+    <TextView
+        android:id="@+id/tvEmpty"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="暂无扫码记录\n按 PDA 扫码键开始扫描"
+        android:textSize="15sp"
+        android:textColor="#BDBDBD"
+        android:gravity="center"
+        android:paddingTop="60dp"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@id/tvListTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 记录列表 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="8dp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/tvListTitle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
