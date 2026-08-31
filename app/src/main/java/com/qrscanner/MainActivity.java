@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 case 2: tone.startTone(ToneGenerator.TONE_PROP_BEEP, 300); break;
                 case 3: tone.startTone(ToneGenerator.TONE_PROP_PROMPT, 300); break;
                 case 4: tone.startTone(ToneGenerator.TONE_PROP_NACK, 300); break;
-                case 5: tone.startTone(ToneGenerator.TONE_CDMA_DROP, 300); break;
+                case 5: tone.startTone(ToneGenerator.TONE_SUP_BUSY, 300); break;
                 default: tone.startTone(ToneGenerator.TONE_PROP_ACK, 300); break;
             }
             tone.release();
