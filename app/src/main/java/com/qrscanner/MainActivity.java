@@ -39,8 +39,6 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 
     private static final String PREF_LANG = "app_lang";
-    private static final String PREF_SCAN = "scan_settings";
-    private static final String KEY_AUTO_SCAN = "auto_scan";
     private static final String LANG_ZH = "zh";
     private static final String LANG_EN = "en";
 
@@ -55,9 +53,6 @@ public class MainActivity extends AppCompatActivity {
         registerForActivityResult(new ScanContract(), result -> {
             if (result.getContents() != null && !result.getContents().isEmpty()) {
                 addRecord(result.getContents(), "");
-            }
-            if (isAutoScanEnabled()) {
-                binding.getRoot().postDelayed(this::startScan, 300);
             }
         });
 
@@ -86,19 +81,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-    }
-
-    private boolean isAutoScanEnabled() {
-        SharedPreferences prefs = getSharedPreferences(PREF_SCAN, MODE_PRIVATE);
-        return prefs.getBoolean(KEY_AUTO_SCAN, true);
-    }
-
-    private void toggleAutoScan() {
-        SharedPreferences prefs = getSharedPreferences(PREF_SCAN, MODE_PRIVATE);
-        boolean current = prefs.getBoolean(KEY_AUTO_SCAN, true);
-        prefs.edit().putBoolean(KEY_AUTO_SCAN, !current).apply();
-        Toast.makeText(this, !current ? getString(R.string.auto_scan_on) : getString(R.string.auto_scan_off),
-                Toast.LENGTH_SHORT).show();
     }
 
     private void startScan() {
@@ -139,12 +121,6 @@ public class MainActivity extends AppCompatActivity {
             popup.getMenu().add(0, 10, 0, getString(R.string.menu_new_project));
             popup.getMenu().add(0, 11, 0, getString(R.string.menu_open_project));
             popup.getMenu().add(0, 12, 0, getString(R.string.menu_flash_settings));
-
-            boolean autoOn = isAutoScanEnabled();
-            popup.getMenu().add(0, 15, 0, autoOn
-                ? getString(R.string.menu_auto_scan_on)
-                : getString(R.string.menu_auto_scan_off));
-
             popup.getMenu().add(0, 14, 0, getString(R.string.menu_switch_lang));
             popup.getMenu().add(0, 99, 0, "──────────");
             popup.getMenu().add(0, 3, 0, getString(R.string.menu_contact));
@@ -155,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
                     case 11: showOpenProjectDialog(); return true;
                     case 12: openFlashSettings(); return true;
                     case 14: toggleLanguage(); return true;
-                    case 15: toggleAutoScan(); return true;
                     case 3: showContactDialog(); return true;
                 }
                 return false;
