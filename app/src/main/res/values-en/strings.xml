@@ -28,6 +28,7 @@
     <string name="flash_off_desc">No flash during scanning</string>
     <string name="save_settings">Save Settings</string>
     <string name="hint_scan">Place QR code in frame to scan</string>
+    <string name="scan_count">Scanned: %d</string>
     <string name="hint_back">\u2190 Back</string>
     <string name="flash_status_on">Flash: Always On</string>
     <string name="flash_status_scan">Flash: On While Scanning</string>

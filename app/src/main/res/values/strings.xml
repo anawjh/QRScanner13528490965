@@ -28,6 +28,7 @@
     <string name="flash_off_desc">扫码时不开闪光灯</string>
     <string name="save_settings">保存设置</string>
     <string name="hint_scan">将二维码放入框内，即可自动扫描</string>
+    <string name="scan_count">已扫: %d 条</string>
     <string name="hint_back">\u2190 返回</string>
     <string name="flash_status_on">闪光灯：常亮</string>
     <string name="flash_status_scan">闪光灯：扫码时亮</string>
