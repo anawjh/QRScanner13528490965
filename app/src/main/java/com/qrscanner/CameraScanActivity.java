@@ -102,12 +102,12 @@ public class CameraScanActivity extends AppCompatActivity {
 
         switch (flashMode) {
             case FlashSettingsActivity.MODE_ALWAYS_ON:
-                tvFlashMode.setText("闪光灯：常亮");
+                tvFlashMode.setText(getString(R.string.flash_status_on));
                 tvFlashMode.setVisibility(View.VISIBLE);
                 btnToggleFlash.setVisibility(View.VISIBLE);
                 break;
             case FlashSettingsActivity.MODE_ON_SCAN:
-                tvFlashMode.setText("闪光灯：扫码时亮");
+                tvFlashMode.setText(getString(R.string.flash_status_scan));
                 tvFlashMode.setVisibility(View.VISIBLE);
                 btnToggleFlash.setVisibility(View.VISIBLE);
                 break;

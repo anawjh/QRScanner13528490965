@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Batch QR Scanner</string>
+    <string name="menu_new_project">📁 New Project</string>
+    <string name="menu_open_project">📂 Open Project</string>
+    <string name="menu_flash_settings">💡 Flash Settings</string>
+    <string name="menu_switch_pda">🔫 Switch to PDA Mode</string>
+    <string name="menu_switch_camera">📷 Switch to Camera Mode</string>
+    <string name="menu_contact">📞 Contact Developer</string>
+    <string name="menu_switch_lang">🌐 切换中文</string>
+    <string name="scan_mode_pda">🔫 PDA Mode Active</string>
+    <string name="scan_mode_camera">📷 Start Scanning</string>
+    <string name="mode_pda">🔫 Camera Scan Mode</string>
+    <string name="mode_camera">📷 Camera Scan Mode</string>
+    <string name="btn_export">📊 Export Excel</string>
+    <string name="btn_clear">🗑️</string>
+    <string name="list_title">Scan Records</string>
+    <string name="empty_hint">No scan records yet\nTap \"Start Scanning\" or use menu to switch PDA mode</string>
+    <string name="contact_title">Contact Developer</string>
+    <string name="contact_msg">jala Batch Scanner\n\n📱 Phone: 13528490965\n\nCustom development available!</string>
+    <string name="contact_develop">For more development, contact 13528490965</string>
+    <string name="flash_settings_title">💡 Flash Settings</string>
+    <string name="flash_mode_label">Flash Mode</string>
+    <string name="flash_always_on">Always On</string>
+    <string name="flash_always_on_desc">Flash stays on until you close the scan page</string>
+    <string name="flash_on_scan">On While Scanning</string>
+    <string name="flash_on_scan_desc">Flash turns on during scan, auto-off after success</string>
+    <string name="flash_off">Off</string>
+    <string name="flash_off_desc">No flash during scanning</string>
+    <string name="save_settings">Save Settings</string>
+    <string name="hint_scan">Place QR code in frame to scan</string>
+    <string name="hint_back">← Back</string>
+    <string name="flash_status_on">Flash: Always On</string>
+    <string name="flash_status_scan">Flash: On While Scanning</string>
+</resources>

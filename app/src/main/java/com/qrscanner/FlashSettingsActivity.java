@@ -31,7 +31,7 @@ public class FlashSettingsActivity extends AppCompatActivity {
 
         btnSave.setOnClickListener(v -> {
             saveSettings();
-            Toast.makeText(this, "设置已保存", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.save_settings), Toast.LENGTH_SHORT).show();
             finish();
         });
     }

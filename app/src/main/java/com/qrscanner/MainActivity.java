@@ -1,6 +1,9 @@
 package com.qrscanner;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -39,6 +42,10 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String PREF_LANG = "app_lang";
+    private static final String LANG_ZH = "zh";
+    private static final String LANG_EN = "en";
+
     private ActivityMainBinding binding;
     private ScanRecordAdapter adapter;
     private List<ScanRecord> records = new ArrayList<>();
@@ -46,24 +53,24 @@ public class MainActivity extends AppCompatActivity {
     private StringBuilder pdaBuffer = new StringBuilder();
     private long lastKeyTime = 0;
 
-    // ===== 项目管理 =====
     private ProjectManager projectManager;
     private ScanProject currentProject;
 
-    // ===== PDA 定时提交 =====
     private final Handler pdaHandler = new Handler(Looper.getMainLooper());
     private final Runnable pdaAutoSubmit = () -> {
         String s = pdaBuffer.toString().trim();
         if (!s.isEmpty()) { addRecord(s, ""); pdaBuffer.setLength(0); }
     };
 
-    // ===== 摄像头扫码模式 =====
     private boolean isCameraMode = true;
     private ActivityResultLauncher<Intent> cameraScanLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        applySavedLocale();
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         binding.getRoot().setFocusable(true);
@@ -117,18 +124,23 @@ public class MainActivity extends AppCompatActivity {
 
         binding.btnMenu.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(this, v);
-            popup.getMenu().add(0, 10, 0, "📁 新建项目");
-            popup.getMenu().add(0, 11, 0, "📂 打开项目");
-            popup.getMenu().add(0, 12, 0, "💡 闪光灯设置");
-            popup.getMenu().add(0, 13, 0, isCameraMode ? "🔫 切换PDA模式" : "📷 切换摄像头模式");
+            popup.getMenu().add(0, 10, 0, getString(R.string.menu_new_project));
+            popup.getMenu().add(0, 11, 0, getString(R.string.menu_open_project));
+            popup.getMenu().add(0, 12, 0, getString(R.string.menu_flash_settings));
+            popup.getMenu().add(0, 13, 0, isCameraMode
+                ? getString(R.string.menu_switch_pda)
+                : getString(R.string.menu_switch_camera));
+            popup.getMenu().add(0, 14, 0, getString(R.string.menu_switch_lang));
             popup.getMenu().add(0, 99, 0, "──────────");
-            popup.getMenu().add(0, 3, 0, "📞 联系开发者");
+            popup.getMenu().add(0, 3, 0, getString(R.string.menu_contact));
+
             popup.setOnMenuItemClickListener(item -> {
                 switch (item.getItemId()) {
                     case 10: showNewProjectDialog(); return true;
                     case 11: showOpenProjectDialog(); return true;
                     case 12: openFlashSettings(); return true;
                     case 13: toggleScanMode(); return true;
+                    case 14: toggleLanguage(); return true;
                     case 3: showContactDialog(); return true;
                 }
                 return false;
@@ -140,24 +152,56 @@ public class MainActivity extends AppCompatActivity {
             if (isCameraMode) {
                 openCameraScan();
             } else {
-                Toast.makeText(this, "PDA模式：直接按扫码键扫描", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "PDA mode: press scan key", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void updateScanButton() {
         if (isCameraMode) {
-            binding.btnScan.setText("📷 开始扫码");
+            binding.btnScan.setText(R.string.scan_mode_camera);
             binding.btnScan.setBackgroundTintList(
                 android.content.res.ColorStateList.valueOf(0xFF1976D2));
         } else {
-            binding.btnScan.setText("🔫 PDA模式已启动");
+            binding.btnScan.setText(R.string.scan_mode_pda);
             binding.btnScan.setBackgroundTintList(
                 android.content.res.ColorStateList.valueOf(0xFF6A1B9A));
         }
     }
 
-    // ======================== 摄像头扫码 & 闪光灯 ========================
+    // ======================== Language ========================
+
+    private String getCurrentLang() {
+        SharedPreferences prefs = getSharedPreferences(PREF_LANG, MODE_PRIVATE);
+        return prefs.getString(PREF_LANG, LANG_ZH);
+    }
+
+    private void applySavedLocale() {
+        String lang = getCurrentLang();
+        Locale locale = lang.equals(LANG_EN) ? Locale.ENGLISH : Locale.CHINESE;
+        Resources res = getResources();
+        Configuration config = res.getConfiguration();
+        config.setLocale(locale);
+        res.updateConfiguration(config, res.getDisplayMetrics());
+    }
+
+    private void toggleLanguage() {
+        String current = getCurrentLang();
+        String newLang = current.equals(LANG_ZH) ? LANG_EN : LANG_ZH;
+
+        SharedPreferences prefs = getSharedPreferences(PREF_LANG, MODE_PRIVATE);
+        prefs.edit().putString(PREF_LANG, newLang).apply();
+
+        Locale locale = newLang.equals(LANG_EN) ? Locale.ENGLISH : Locale.CHINESE;
+        Resources res = getResources();
+        Configuration config = res.getConfiguration();
+        config.setLocale(locale);
+        res.updateConfiguration(config, res.getDisplayMetrics());
+
+        recreate();
+    }
+
+    // ======================== Camera & Flash ========================
 
     private void openFlashSettings() {
         Intent intent = new Intent(this, FlashSettingsActivity.class);
@@ -173,26 +217,26 @@ public class MainActivity extends AppCompatActivity {
         isCameraMode = !isCameraMode;
         updateScanButton();
         updatePdaIndicator();
-        String msg = isCameraMode ? "已切换到摄像头扫码模式" : "已切换到PDA模式";
+        String msg = isCameraMode ? "Camera mode" : "PDA mode";
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
-    // ======================== 项目管理 ========================
+    // ======================== Project ========================
 
     private void updateProjectName() {
-        String name = currentProject != null ? currentProject.name : "未命名";
+        String name = currentProject != null ? currentProject.name : "N/A";
         binding.tvProjectName.setText("📁 " + name);
     }
 
     private void showNewProjectDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("📁 新建项目");
+        builder.setTitle(R.string.menu_new_project);
 
         EditText input = new EditText(this);
-        input.setHint("输入项目名称（留空自动生成）");
+        input.setHint("Project name (empty = auto)");
         builder.setView(input);
 
-        builder.setPositiveButton("创建", (d, w) -> {
+        builder.setPositiveButton(android.R.string.ok, (d, w) -> {
             String name = input.getText().toString().trim();
             if (name.isEmpty()) {
                 currentProject = projectManager.createNew();
@@ -208,10 +252,10 @@ public class MainActivity extends AppCompatActivity {
             updateCounter();
             updateProjectName();
             binding.tvEmpty.setVisibility(records.isEmpty() ? View.VISIBLE : View.GONE);
-            Toast.makeText(this, "已创建项目: " + currentProject.name, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Created: " + currentProject.name, Toast.LENGTH_SHORT).show();
             binding.getRoot().requestFocus();
         });
-        builder.setNegativeButton("取消", null);
+        builder.setNegativeButton(android.R.string.cancel, null);
         AlertDialog dlg = builder.show();
         dlg.setOnDismissListener(d -> binding.getRoot().requestFocus());
     }
@@ -219,12 +263,12 @@ public class MainActivity extends AppCompatActivity {
     private void showOpenProjectDialog() {
         List<String> projects = projectManager.listProjects();
         if (projects.isEmpty()) {
-            Toast.makeText(this, "暂无保存的项目", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No projects", Toast.LENGTH_SHORT).show();
             return;
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("📂 打开项目");
+        builder.setTitle(R.string.menu_open_project);
 
         View view = getLayoutInflater().inflate(R.layout.dialog_project_list, null);
         ListView lv = view.findViewById(R.id.lvProjects);
@@ -233,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
         lv.setAdapter(adapter2);
 
         builder.setView(view);
-        builder.setNegativeButton("取消", null);
+        builder.setNegativeButton(android.R.string.cancel, null);
         AlertDialog dialog = builder.show();
         dialog.setOnDismissListener(d -> binding.getRoot().requestFocus());
 
@@ -250,9 +294,9 @@ public class MainActivity extends AppCompatActivity {
                 updateCounter();
                 updateProjectName();
                 binding.tvEmpty.setVisibility(records.isEmpty() ? View.VISIBLE : View.GONE);
-                Toast.makeText(MainActivity.this, "已打开: " + name, Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Opened: " + name, Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(MainActivity.this, "打开失败", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Open failed", Toast.LENGTH_SHORT).show();
             }
             dialog.dismiss();
             binding.getRoot().requestFocus();
@@ -272,39 +316,41 @@ public class MainActivity extends AppCompatActivity {
         saveCurrentProject();
     }
 
-    // ======================== PDA 扫码核心 ========================
+    // ======================== PDA ========================
 
     private void updatePdaIndicator() {
         if (isCameraMode) {
-            binding.tvModeBar.setText("📷 摄像头扫码模式");
+            binding.tvModeBar.setText(R.string.mode_camera);
             binding.tvModeBar.setBackgroundColor(0xFF1976D2);
         } else {
-            binding.tvModeBar.setText("🔫 当前模式：PDA激光扫码");
+            binding.tvModeBar.setText(R.string.mode_pda);
             binding.tvModeBar.setBackgroundColor(0xFF6A1B9A);
         }
     }
 
     private void showPdaModeGuide() {
+        String title = isCameraMode ? getString(R.string.mode_camera) : getString(R.string.mode_pda);
+        String msg = isCameraMode
+            ? "Scan QR code with camera.\nFlash settings in menu."
+            : "Press PDA scan key to scan.";
         new AlertDialog.Builder(this)
-            .setTitle(isCameraMode ? "📷 摄像头扫码模式" : "🔫 PDA激光扫码模式已启动")
-            .setMessage(isCameraMode
-                ? "点击「开始扫码」按钮，将二维码对准摄像头即可扫描。\n\n提示：可在菜单中设置闪光灯。"
-                : "直接按 PDA 扫码键扫描条码，数据会自动录入。\n\n提示：请确保 App 界面处于前台运行状态。")
-            .setPositiveButton("知道了", (d, w) -> binding.getRoot().requestFocus())
+            .setTitle(title)
+            .setMessage(msg)
+            .setPositiveButton(android.R.string.ok, (d, w) -> binding.getRoot().requestFocus())
             .setOnDismissListener(d -> binding.getRoot().requestFocus())
             .show();
     }
 
     private void showContactDialog() {
         new AlertDialog.Builder(this)
-            .setTitle("联系开发者")
-            .setMessage("jala批量扫码\n\n📱 联系电话：13528490965\n\n如需定制开发项目，欢迎联系！")
-            .setPositiveButton("拨打电话", (d, w) -> {
+            .setTitle(R.string.contact_title)
+            .setMessage(getString(R.string.contact_msg) + "\n\n" + getString(R.string.contact_develop))
+            .setPositiveButton("📞 13528490965", (d, w) -> {
                 Intent intent = new Intent(Intent.ACTION_DIAL,
                     Uri.parse("tel:13528490965"));
                 startActivity(intent);
             })
-            .setNegativeButton("关闭", null)
+            .setNegativeButton(android.R.string.cancel, null)
             .show();
     }
 
@@ -390,7 +436,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
 
-    // ======================== 记录操作 ========================
+    // ======================== Records ========================
 
     private void addRecord(String content, String remark) {
         String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
@@ -405,16 +451,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void onDeleteRecord(int position) {
         new AlertDialog.Builder(this)
-            .setTitle("删除记录")
-            .setMessage("确认删除这条扫码记录？")
-            .setPositiveButton("删除", (d, w) -> {
+            .setTitle("Delete")
+            .setMessage("Delete this record?")
+            .setPositiveButton(android.R.string.ok, (d, w) -> {
                 records.remove(position);
                 reSequence();
                 adapter.notifyDataSetChanged();
                 updateCounter();
                 if (records.isEmpty()) binding.tvEmpty.setVisibility(View.VISIBLE);
             })
-            .setNegativeButton("取消", null)
+            .setNegativeButton(android.R.string.cancel, null)
             .show();
     }
 
@@ -424,45 +470,45 @@ public class MainActivity extends AppCompatActivity {
         EditText etRemark = dialogView.findViewById(R.id.etRemark);
         etRemark.setText(record.getRemark());
         new AlertDialog.Builder(this)
-            .setTitle("编辑备注")
+            .setTitle("Edit Remark")
             .setView(dialogView)
-            .setPositiveButton("保存", (d, w) -> {
+            .setPositiveButton(android.R.string.ok, (d, w) -> {
                 record.setRemark(etRemark.getText().toString().trim());
                 adapter.notifyItemChanged(position);
                 saveCurrentProject();
             })
-            .setNegativeButton("取消", null)
+            .setNegativeButton(android.R.string.cancel, null)
             .show();
     }
 
     private void showClearConfirmDialog() {
-        if (records.isEmpty()) { Toast.makeText(this, "暂无记录", Toast.LENGTH_SHORT).show(); return; }
+        if (records.isEmpty()) { Toast.makeText(this, "No records", Toast.LENGTH_SHORT).show(); return; }
         new AlertDialog.Builder(this)
-            .setTitle("清空记录")
-            .setMessage("确认清空全部 " + records.size() + " 条记录？")
-            .setPositiveButton("清空", (d, w) -> {
+            .setTitle("Clear All")
+            .setMessage("Clear all " + records.size() + " records?")
+            .setPositiveButton(android.R.string.ok, (d, w) -> {
                 records.clear();
                 reSequence();
                 adapter.notifyDataSetChanged();
                 updateCounter();
                 binding.tvEmpty.setVisibility(View.VISIBLE);
             })
-            .setNegativeButton("取消", null)
+            .setNegativeButton(android.R.string.cancel, null)
             .show();
     }
 
     private void updateCounter() {
-        binding.tvCounter.setText("已扫: " + records.size() + " 条");
+        binding.tvCounter.setText("Scanned: " + records.size());
         binding.btnExport.setEnabled(!records.isEmpty());
         binding.btnClear.setEnabled(!records.isEmpty());
     }
 
-    // ======================== 导出 Excel ========================
+    // ======================== Export ========================
 
     private void exportToExcel() {
         try {
             Workbook workbook = new XSSFWorkbook();
-            Sheet sheet = workbook.createSheet("扫码记录");
+            Sheet sheet = workbook.createSheet("Scan Records");
             sheet.setColumnWidth(0, 8 * 256);
             sheet.setColumnWidth(1, 50 * 256);
             sheet.setColumnWidth(2, 22 * 256);
@@ -492,7 +538,7 @@ public class MainActivity extends AppCompatActivity {
             oddStyle.setBorderLeft(BorderStyle.THIN); oddStyle.setBorderRight(BorderStyle.THIN);
 
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"序号", "二维码内容", "扫描时间", "备注/标签"};
+            String[] headers = {"#", "QR Content", "Scan Time", "Remark"};
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(headers[i]);
@@ -515,7 +561,7 @@ public class MainActivity extends AppCompatActivity {
 
             String safeName = currentProject != null
                 ? currentProject.name.replaceAll("[\\\\/:*?\"<>|]", "_")
-                : "扫码记录";
+                : "ScanRecords";
             String fileName = safeName + "_" +
                 new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()) + ".xlsx";
             File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
@@ -527,21 +573,20 @@ public class MainActivity extends AppCompatActivity {
 
             Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", file);
             new AlertDialog.Builder(this)
-                .setTitle("✅ 导出成功")
-                .setMessage("项目：" + (currentProject != null ? currentProject.name : "") +
-                    "\n文件：" + fileName + "\n共 " + records.size() + " 条记录")
-                .setPositiveButton("分享文件", (d, w) -> {
+                .setTitle("Export OK")
+                .setMessage(fileName + "\n" + records.size() + " records")
+                .setPositiveButton("Share", (d, w) -> {
                     Intent shareIntent = new Intent(Intent.ACTION_SEND);
                     shareIntent.setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                     shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
                     shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(Intent.createChooser(shareIntent, "分享 Excel 文件"));
+                    startActivity(Intent.createChooser(shareIntent, "Share Excel"));
                 })
-                .setNegativeButton("确定", null)
+                .setNegativeButton(android.R.string.cancel, null)
                 .show();
 
         } catch (Exception e) {
-            Toast.makeText(this, "导出失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Export failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
