@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     // ===== 摄像头扫码模式 =====
-    private boolean isCameraMode = false;
+    private boolean isCameraMode = true;
     private ActivityResultLauncher<Intent> cameraScanLauncher;
 
     @Override
@@ -94,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
         updateProjectName();
 
         showPdaModeGuide();
+
+        binding.getRoot().postDelayed(() -> openCameraScan(), 500);
     }
 
     @Override
@@ -145,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateScanButton() {
         if (isCameraMode) {
-            binding.btnScan.setText("📷 摄像头扫码");
+            binding.btnScan.setText("📷 开始扫码");
             binding.btnScan.setBackgroundTintList(
                 android.content.res.ColorStateList.valueOf(0xFF1976D2));
         } else {
@@ -274,7 +276,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updatePdaIndicator() {
         if (isCameraMode) {
-            binding.tvModeBar.setText("📷 当前模式：摄像头扫码");
+            binding.tvModeBar.setText("📷 摄像头扫码模式");
             binding.tvModeBar.setBackgroundColor(0xFF1976D2);
         } else {
             binding.tvModeBar.setText("🔫 当前模式：PDA激光扫码");

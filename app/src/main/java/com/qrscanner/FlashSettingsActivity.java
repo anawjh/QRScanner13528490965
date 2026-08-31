@@ -38,7 +38,7 @@ public class FlashSettingsActivity extends AppCompatActivity {
 
     private void loadSettings() {
         SharedPreferences prefs = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-        String mode = prefs.getString(KEY_FLASH_MODE, MODE_OFF);
+        String mode = prefs.getString(KEY_FLASH_MODE, MODE_ON_SCAN);
 
         switch (mode) {
             case MODE_ALWAYS_ON:
@@ -71,6 +71,6 @@ public class FlashSettingsActivity extends AppCompatActivity {
     }
 
     public static String getFlashMode(SharedPreferences prefs) {
-        return prefs.getString(KEY_FLASH_MODE, MODE_OFF);
+        return prefs.getString(KEY_FLASH_MODE, MODE_ON_SCAN);
     }
 }
