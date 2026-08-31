@@ -128,8 +128,8 @@ public class CameraScanActivity extends AppCompatActivity {
 
     private void playBeep() {
         try {
-            ToneGenerator tone = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80);
-            tone.startTone(ToneGenerator.TONE_PROP_BEEP2, 200);
+            ToneGenerator tone = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
+            tone.startTone(ToneGenerator.TONE_PROP_BEEP2, 300);
             tone.release();
         } catch (Exception e) {
             // ignore
