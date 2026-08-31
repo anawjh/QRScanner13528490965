@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -16,12 +18,13 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 import com.qrscanner.databinding.ActivityMainBinding;
 
 import org.apache.poi.ss.usermodel.*;
@@ -48,14 +51,11 @@ public class MainActivity extends AppCompatActivity {
     private ProjectManager projectManager;
     private ScanProject currentProject;
 
-    private final ActivityResultLauncher<Intent> cameraScanLauncher =
-        registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-            if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                String scanResult = result.getData().getStringExtra(
-                        CameraScanActivity.EXTRA_SCAN_RESULT);
-                if (scanResult != null && !scanResult.isEmpty()) {
-                    addRecord(scanResult, "");
-                }
+    private final ActivityResultLauncher<ScanOptions> scanLauncher =
+        registerForActivityResult(new ScanContract(), result -> {
+            if (result.getContents() != null && !result.getContents().isEmpty()) {
+                playBeep();
+                addRecord(result.getContents(), "");
             }
         });
 
@@ -77,13 +77,37 @@ public class MainActivity extends AppCompatActivity {
         setupButtons();
         updateCounter();
         updateProjectName();
+    }
 
-        binding.getRoot().postDelayed(this::startScan, 500);
+    private void playBeep() {
+        try {
+            ToneGenerator tone = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80);
+            tone.startTone(ToneGenerator.TONE_PROP_BEEP2, 200);
+            tone.release();
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
     private void startScan() {
-        Intent intent = new Intent(this, CameraScanActivity.class);
-        cameraScanLauncher.launch(intent);
+        ScanOptions options = new ScanOptions();
+        options.setDesiredBarcodeFormats(ScanOptions.QR_CODE);
+        options.setPrompt(getString(R.string.hint_scan));
+        options.setBeepEnabled(false);
+        options.setOrientationLocked(true);
+        options.setCameraId(0);
+
+        String flashMode = getSharedPreferences(FlashSettingsActivity.PREF_NAME, MODE_PRIVATE)
+                .getString(FlashSettingsActivity.KEY_FLASH_MODE, FlashSettingsActivity.MODE_ON_SCAN);
+
+        if (flashMode.equals(FlashSettingsActivity.MODE_ALWAYS_ON) ||
+                flashMode.equals(FlashSettingsActivity.MODE_ON_SCAN)) {
+            options.setTorchEnabled(true);
+        } else {
+            options.setTorchEnabled(false);
+        }
+
+        scanLauncher.launch(options);
     }
 
     private void setupRecyclerView() {

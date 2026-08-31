@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
@@ -25,8 +26,8 @@ import java.util.List;
 
 public class CameraScanActivity extends AppCompatActivity {
 
-    public static final String EXTRA_SCAN_RESULT = "scan_result";
-    public static final String EXTRA_SCAN_COUNT = "scan_count";
+    public static final String ACTION_SCAN_RESULT = "com.qrscanner.SCAN_RESULT";
+    public static final String EXTRA_SCAN_DATA = "scan_data";
     private static final int REQ_CAMERA = 200;
 
     private DecoratedBarcodeView barcodeScanner;
@@ -49,14 +50,13 @@ public class CameraScanActivity extends AppCompatActivity {
             scanCount++;
             tvScanHint.setText(getString(R.string.scan_count, scanCount));
 
+            Intent intent = new Intent(ACTION_SCAN_RESULT);
+            intent.putExtra(EXTRA_SCAN_DATA, scanData);
+            LocalBroadcastManager.getInstance(CameraScanActivity.this).sendBroadcast(intent);
+
             if (FlashSettingsActivity.MODE_ON_SCAN.equals(flashMode)) {
                 turnOffTorch();
             }
-
-            Intent resultIntent = new Intent();
-            resultIntent.putExtra(EXTRA_SCAN_RESULT, scanData);
-            resultIntent.putExtra(EXTRA_SCAN_COUNT, scanCount);
-            setResult(RESULT_OK, resultIntent);
         }
     };
 
@@ -82,12 +82,7 @@ public class CameraScanActivity extends AppCompatActivity {
         );
         barcodeScanner.getBarcodeView().setDecoderFactory(new DefaultDecoderFactory(formats));
 
-        btnBack.setOnClickListener(v -> {
-            Intent resultIntent = new Intent();
-            resultIntent.putExtra(EXTRA_SCAN_COUNT, scanCount);
-            setResult(RESULT_CANCELED, resultIntent);
-            finish();
-        });
+        btnBack.setOnClickListener(v -> finish());
 
         btnToggleFlash.setOnClickListener(v -> toggleTorch());
 
