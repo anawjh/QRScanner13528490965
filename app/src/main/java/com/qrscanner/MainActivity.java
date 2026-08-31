@@ -466,6 +466,11 @@ public class MainActivity extends AppCompatActivity {
                 row.setHeight((short) 400);
             }
 
+            sheet.createRow(sorted.size() + 2).createCell(0).setCellValue(
+                "导出时间: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",
+                    Locale.getDefault()).format(new Date()) +
+                "  |  共 " + sorted.size() + " 条  |  jala批量扫码 13528490965");
+
             String safeName = currentProject != null
                 ? currentProject.name.replaceAll("[\\\\/:*?\"<>|]", "_")
                 : "ScanRecords";
