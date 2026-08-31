@@ -1,17 +1,15 @@
 package com.qrscanner;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -24,6 +22,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -45,24 +45,15 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREF_LANG = "app_lang";
     private static final String LANG_ZH = "zh";
     private static final String LANG_EN = "en";
+    private static final int REQ_CAMERA = 100;
 
     private ActivityMainBinding binding;
     private ScanRecordAdapter adapter;
     private List<ScanRecord> records = new ArrayList<>();
 
-    private StringBuilder pdaBuffer = new StringBuilder();
-    private long lastKeyTime = 0;
-
     private ProjectManager projectManager;
     private ScanProject currentProject;
 
-    private final Handler pdaHandler = new Handler(Looper.getMainLooper());
-    private final Runnable pdaAutoSubmit = () -> {
-        String s = pdaBuffer.toString().trim();
-        if (!s.isEmpty()) { addRecord(s, ""); pdaBuffer.setLength(0); }
-    };
-
-    private boolean isCameraMode = true;
     private ActivityResultLauncher<Intent> cameraScanLauncher;
 
     @Override
@@ -73,8 +64,6 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        binding.getRoot().setFocusable(true);
-        binding.getRoot().setFocusableInTouchMode(true);
 
         cameraScanLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -86,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
                             addRecord(scanResult, "");
                         }
                     }
-                    binding.getRoot().requestFocus();
                 });
 
         projectManager = new ProjectManager(this);
@@ -97,17 +85,31 @@ public class MainActivity extends AppCompatActivity {
         setupRecyclerView();
         setupButtons();
         updateCounter();
-        updatePdaIndicator();
         updateProjectName();
 
-        showPdaModeGuide();
-
-        binding.getRoot().postDelayed(() -> openCameraScan(), 500);
+        requestCameraPermissionAndScan();
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        return true;
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQ_CAMERA) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openCameraScan();
+            } else {
+                Toast.makeText(this, getString(R.string.camera_permission_denied), Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private void requestCameraPermissionAndScan() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA}, REQ_CAMERA);
+        } else {
+            openCameraScan();
+        }
     }
 
     private void setupRecyclerView() {
@@ -117,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupButtons() {
-        updateScanButton();
+        binding.btnScan.setOnClickListener(v -> openCameraScan());
 
         binding.btnExport.setOnClickListener(v -> exportToExcel());
         binding.btnClear.setOnClickListener(v -> showClearConfirmDialog());
@@ -127,9 +129,6 @@ public class MainActivity extends AppCompatActivity {
             popup.getMenu().add(0, 10, 0, getString(R.string.menu_new_project));
             popup.getMenu().add(0, 11, 0, getString(R.string.menu_open_project));
             popup.getMenu().add(0, 12, 0, getString(R.string.menu_flash_settings));
-            popup.getMenu().add(0, 13, 0, isCameraMode
-                ? getString(R.string.menu_switch_pda)
-                : getString(R.string.menu_switch_camera));
             popup.getMenu().add(0, 14, 0, getString(R.string.menu_switch_lang));
             popup.getMenu().add(0, 99, 0, "──────────");
             popup.getMenu().add(0, 3, 0, getString(R.string.menu_contact));
@@ -139,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
                     case 10: showNewProjectDialog(); return true;
                     case 11: showOpenProjectDialog(); return true;
                     case 12: openFlashSettings(); return true;
-                    case 13: toggleScanMode(); return true;
                     case 14: toggleLanguage(); return true;
                     case 3: showContactDialog(); return true;
                 }
@@ -147,26 +145,6 @@ public class MainActivity extends AppCompatActivity {
             });
             popup.show();
         });
-
-        binding.btnScan.setOnClickListener(v -> {
-            if (isCameraMode) {
-                openCameraScan();
-            } else {
-                Toast.makeText(this, "PDA mode: press scan key", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void updateScanButton() {
-        if (isCameraMode) {
-            binding.btnScan.setText(R.string.scan_mode_camera);
-            binding.btnScan.setBackgroundTintList(
-                android.content.res.ColorStateList.valueOf(0xFF1976D2));
-        } else {
-            binding.btnScan.setText(R.string.scan_mode_pda);
-            binding.btnScan.setBackgroundTintList(
-                android.content.res.ColorStateList.valueOf(0xFF6A1B9A));
-        }
     }
 
     // ======================== Language ========================
@@ -209,23 +187,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openCameraScan() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA}, REQ_CAMERA);
+            return;
+        }
         Intent intent = new Intent(this, CameraScanActivity.class);
         cameraScanLauncher.launch(intent);
-    }
-
-    private void toggleScanMode() {
-        isCameraMode = !isCameraMode;
-        updateScanButton();
-        updatePdaIndicator();
-        String msg = isCameraMode ? "Camera mode" : "PDA mode";
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
     // ======================== Project ========================
 
     private void updateProjectName() {
         String name = currentProject != null ? currentProject.name : "N/A";
-        binding.tvProjectName.setText("📁 " + name);
+        binding.tvProjectName.setText("\uD83D\uDCC1 " + name);
     }
 
     private void showNewProjectDialog() {
@@ -253,11 +229,9 @@ public class MainActivity extends AppCompatActivity {
             updateProjectName();
             binding.tvEmpty.setVisibility(records.isEmpty() ? View.VISIBLE : View.GONE);
             Toast.makeText(this, "Created: " + currentProject.name, Toast.LENGTH_SHORT).show();
-            binding.getRoot().requestFocus();
         });
         builder.setNegativeButton(android.R.string.cancel, null);
-        AlertDialog dlg = builder.show();
-        dlg.setOnDismissListener(d -> binding.getRoot().requestFocus());
+        builder.show();
     }
 
     private void showOpenProjectDialog() {
@@ -279,7 +253,6 @@ public class MainActivity extends AppCompatActivity {
         builder.setView(view);
         builder.setNegativeButton(android.R.string.cancel, null);
         AlertDialog dialog = builder.show();
-        dialog.setOnDismissListener(d -> binding.getRoot().requestFocus());
 
         lv.setOnItemClickListener((parent, v, pos, id) -> {
             String name = projects.get(pos);
@@ -299,7 +272,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Open failed", Toast.LENGTH_SHORT).show();
             }
             dialog.dismiss();
-            binding.getRoot().requestFocus();
         });
     }
 
@@ -316,124 +288,17 @@ public class MainActivity extends AppCompatActivity {
         saveCurrentProject();
     }
 
-    // ======================== PDA ========================
-
-    private void updatePdaIndicator() {
-        if (isCameraMode) {
-            binding.tvModeBar.setText(R.string.mode_camera);
-            binding.tvModeBar.setBackgroundColor(0xFF1976D2);
-        } else {
-            binding.tvModeBar.setText(R.string.mode_pda);
-            binding.tvModeBar.setBackgroundColor(0xFF6A1B9A);
-        }
-    }
-
-    private void showPdaModeGuide() {
-        String title = isCameraMode ? getString(R.string.mode_camera) : getString(R.string.mode_pda);
-        String msg = isCameraMode
-            ? "Scan QR code with camera.\nFlash settings in menu."
-            : "Press PDA scan key to scan.";
-        new AlertDialog.Builder(this)
-            .setTitle(title)
-            .setMessage(msg)
-            .setPositiveButton(android.R.string.ok, (d, w) -> binding.getRoot().requestFocus())
-            .setOnDismissListener(d -> binding.getRoot().requestFocus())
-            .show();
-    }
-
     private void showContactDialog() {
         new AlertDialog.Builder(this)
             .setTitle(R.string.contact_title)
-            .setMessage(getString(R.string.contact_msg) + "\n\n" + getString(R.string.contact_develop))
-            .setPositiveButton("📞 13528490965", (d, w) -> {
+            .setMessage(getString(R.string.contact_develop) + "\n\n\uD83D\uDCF1 13528490965")
+            .setPositiveButton("\uD83D\uDCDE 13528490965", (d, w) -> {
                 Intent intent = new Intent(Intent.ACTION_DIAL,
                     Uri.parse("tel:13528490965"));
                 startActivity(intent);
             })
             .setNegativeButton(android.R.string.cancel, null)
             .show();
-    }
-
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        if (event.getAction() == KeyEvent.ACTION_MULTIPLE) {
-            String chars = event.getCharacters();
-            if (chars != null && chars.length() > 0) {
-                addRecord(chars, "");
-                pdaBuffer.setLength(0);
-                lastKeyTime = System.currentTimeMillis();
-                return true;
-            }
-        }
-
-        if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            int keyCode = event.getKeyCode();
-            long now = System.currentTimeMillis();
-
-            if (now - lastKeyTime > 500 && pdaBuffer.length() > 0) {
-                String s = pdaBuffer.toString().trim();
-                if (s.length() >= 3) { addRecord(s, ""); }
-                pdaBuffer.setLength(0);
-            }
-            lastKeyTime = now;
-            pdaHandler.removeCallbacks(pdaAutoSubmit);
-            pdaHandler.postDelayed(pdaAutoSubmit, 500);
-
-            if (keyCode == KeyEvent.KEYCODE_ENTER ||
-                keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER ||
-                keyCode == KeyEvent.KEYCODE_TAB) {
-                String s = pdaBuffer.toString().trim();
-                if (!s.isEmpty()) { addRecord(s, ""); pdaBuffer.setLength(0); }
-                pdaHandler.removeCallbacks(pdaAutoSubmit);
-                return true;
-            }
-
-            if (keyCode == KeyEvent.KEYCODE_DEL && pdaBuffer.length() > 0) {
-                pdaBuffer.deleteCharAt(pdaBuffer.length() - 1);
-                return true;
-            }
-
-            if (keyCode >= KeyEvent.KEYCODE_NUMPAD_0 && keyCode <= KeyEvent.KEYCODE_NUMPAD_9) {
-                pdaBuffer.append((char) ('0' + (keyCode - KeyEvent.KEYCODE_NUMPAD_0)));
-                return true;
-            }
-
-            if (keyCode == KeyEvent.KEYCODE_STAR)       { pdaBuffer.append('*'); return true; }
-            if (keyCode == KeyEvent.KEYCODE_POUND)       { pdaBuffer.append('#'); return true; }
-            if (keyCode == KeyEvent.KEYCODE_MINUS)       { pdaBuffer.append('-'); return true; }
-            if (keyCode == KeyEvent.KEYCODE_PERIOD)      { pdaBuffer.append('.'); return true; }
-            if (keyCode == KeyEvent.KEYCODE_COMMA)       { pdaBuffer.append(','); return true; }
-            if (keyCode == KeyEvent.KEYCODE_SLASH)       { pdaBuffer.append('/'); return true; }
-
-            int meta = event.getMetaState();
-            char c = (char) event.getUnicodeChar(meta);
-            if (c == 0) c = (char) event.getUnicodeChar();
-            if (c == 0) c = (char) event.getDisplayLabel();
-            if (c >= 32 && c < 127) { pdaBuffer.append(c); return true; }
-        }
-        return super.dispatchKeyEvent(event);
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            char c = (char) event.getUnicodeChar();
-            if (c == 0) c = (char) event.getDisplayLabel();
-            if (c >= 32 && c < 127) {
-                long now = System.currentTimeMillis();
-                if (now - lastKeyTime > 500 && pdaBuffer.length() > 0) {
-                    String s = pdaBuffer.toString().trim();
-                    if (s.length() >= 3) { addRecord(s, ""); }
-                    pdaBuffer.setLength(0);
-                }
-                lastKeyTime = now;
-                pdaBuffer.append(c);
-                pdaHandler.removeCallbacks(pdaAutoSubmit);
-                pdaHandler.postDelayed(pdaAutoSubmit, 500);
-                return true;
-            }
-        }
-        return super.onKeyDown(keyCode, event);
     }
 
     // ======================== Records ========================
@@ -451,8 +316,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void onDeleteRecord(int position) {
         new AlertDialog.Builder(this)
-            .setTitle("Delete")
-            .setMessage("Delete this record?")
+            .setTitle(R.string.delete_title)
+            .setMessage(R.string.delete_confirm)
             .setPositiveButton(android.R.string.ok, (d, w) -> {
                 records.remove(position);
                 reSequence();
@@ -470,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
         EditText etRemark = dialogView.findViewById(R.id.etRemark);
         etRemark.setText(record.getRemark());
         new AlertDialog.Builder(this)
-            .setTitle("Edit Remark")
+            .setTitle(R.string.edit_remark_title)
             .setView(dialogView)
             .setPositiveButton(android.R.string.ok, (d, w) -> {
                 record.setRemark(etRemark.getText().toString().trim());
@@ -482,10 +347,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showClearConfirmDialog() {
-        if (records.isEmpty()) { Toast.makeText(this, "No records", Toast.LENGTH_SHORT).show(); return; }
+        if (records.isEmpty()) { Toast.makeText(this, R.string.no_records, Toast.LENGTH_SHORT).show(); return; }
         new AlertDialog.Builder(this)
-            .setTitle("Clear All")
-            .setMessage("Clear all " + records.size() + " records?")
+            .setTitle(R.string.clear_all_title)
+            .setMessage(getString(R.string.clear_all_msg, records.size()))
             .setPositiveButton(android.R.string.ok, (d, w) -> {
                 records.clear();
                 reSequence();
@@ -498,7 +363,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateCounter() {
-        binding.tvCounter.setText("Scanned: " + records.size());
+        binding.tvCounter.setText(getString(R.string.scanned_count, records.size()));
         binding.btnExport.setEnabled(!records.isEmpty());
         binding.btnClear.setEnabled(!records.isEmpty());
     }
@@ -573,40 +438,25 @@ public class MainActivity extends AppCompatActivity {
 
             Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", file);
             new AlertDialog.Builder(this)
-                .setTitle("Export OK")
+                .setTitle(R.string.export_ok_title)
                 .setMessage(fileName + "\n" + records.size() + " records")
-                .setPositiveButton("Share", (d, w) -> {
+                .setPositiveButton(R.string.share, (d, w) -> {
                     Intent shareIntent = new Intent(Intent.ACTION_SEND);
                     shareIntent.setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                     shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
                     shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(Intent.createChooser(shareIntent, "Share Excel"));
+                    startActivity(Intent.createChooser(shareIntent, getString(R.string.share)));
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
 
         } catch (Exception e) {
-            Toast.makeText(this, "Export failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.export_failed, e.getMessage()), Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        binding.getRoot().requestFocus();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        pdaHandler.removeCallbacks(pdaAutoSubmit);
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            binding.getRoot().requestFocus();
-        }
     }
 }

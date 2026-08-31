@@ -1,25 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">批量扫码工具</string>
-    <string name="menu_new_project">📁 新建项目</string>
-    <string name="menu_open_project">📂 打开项目</string>
-    <string name="menu_flash_settings">💡 闪光灯设置</string>
-    <string name="menu_switch_pda">🔫 切换PDA模式</string>
-    <string name="menu_switch_camera">📷 切换摄像头模式</string>
-    <string name="menu_contact">📞 联系开发者</string>
-    <string name="menu_switch_lang">🌐 切换英文</string>
-    <string name="scan_mode_pda">🔫 PDA模式已启动</string>
-    <string name="scan_mode_camera">📷 开始扫码</string>
-    <string name="mode_pda">🔫 摄像头扫码模式</string>
-    <string name="mode_camera">📷 摄像头扫码模式</string>
-    <string name="btn_export">📊 导出Excel</string>
-    <string name="btn_clear">🗑️</string>
+    <string name="menu_new_project">\uD83D\uDCC1 新建项目</string>
+    <string name="menu_open_project">\uD83D\uDCC2 打开项目</string>
+    <string name="menu_flash_settings">\uD83D\uDCA1 闪光灯设置</string>
+    <string name="menu_contact">\uD83D\uDCDE 联系开发者</string>
+    <string name="menu_switch_lang">\uD83C\uDF10 切换英文</string>
+    <string name="scan_mode_camera">\uD83D\uDCF7 开始扫码</string>
+    <string name="mode_camera">\uD83D\uDCF7 摄像头扫码模式</string>
+    <string name="btn_export">\uD83D\uDCCA 导出Excel</string>
+    <string name="btn_clear">\uD83D\uDDD\uFE0F</string>
     <string name="list_title">扫码记录</string>
-    <string name="empty_hint">暂无扫码记录\n点击「开始扫码」或点击右上角菜单切换 PDA 模式</string>
+    <string name="empty_hint">暂无扫码记录\n点击「开始扫码」开始扫描</string>
     <string name="contact_title">联系开发者</string>
-    <string name="contact_msg">jala批量扫码\n\n📱 联系电话：13528490965\n\n如需定制开发项目，欢迎联系！</string>
-    <string name="contact_develop">开发更多请联系 13528490965</string>
-    <string name="flash_settings_title">💡 闪光灯设置</string>
+    <string name="contact_develop">开发更新，请联系13528490965</string>
+    <string name="flash_settings_title">\uD83D\uDCA1 闪光灯设置</string>
     <string name="flash_mode_label">闪光灯模式</string>
     <string name="flash_always_on">常灯（常亮）</string>
     <string name="flash_always_on_desc">打开扫码页面后闪光灯一直亮，直到关闭扫码页面才灭</string>
@@ -29,7 +24,18 @@
     <string name="flash_off_desc">扫码时不开闪光灯</string>
     <string name="save_settings">保存设置</string>
     <string name="hint_scan">将二维码放入框内，即可自动扫描</string>
-    <string name="hint_back">← 返回</string>
+    <string name="hint_back">\u2190 返回</string>
     <string name="flash_status_on">闪光灯：常亮</string>
     <string name="flash_status_scan">闪光灯：扫码时亮</string>
+    <string name="camera_permission_denied">需要相机权限才能扫码</string>
+    <string name="scanned_count">已扫: %d 条</string>
+    <string name="delete_title">删除</string>
+    <string name="delete_confirm">删除这条记录？</string>
+    <string name="edit_remark_title">编辑备注</string>
+    <string name="no_records">暂无记录</string>
+    <string name="clear_all_title">清空全部</string>
+    <string name="clear_all_msg">确认清空全部 %d 条记录？</string>
+    <string name="export_ok_title">导出成功</string>
+    <string name="share">分享</string>
+    <string name="export_failed">导出失败: %s</string>
 </resources>

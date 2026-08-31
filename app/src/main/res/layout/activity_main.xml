@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#F5F7FA">
 
-    <!-- 顶部标题栏（带 ⋮ 菜单） -->
+    <!-- 顶部标题栏 -->
     <RelativeLayout
         android:id="@+id/toolbar"
         android:layout_width="0dp"
@@ -25,6 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
             android:orientation="vertical">
 
             <TextView
@@ -58,23 +59,6 @@
             android:contentDescription="菜单" />
     </RelativeLayout>
 
-    <!-- 模式栏 -->
-    <TextView
-        android:id="@+id/tvModeBar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/mode_camera"
-        android:textSize="12sp"
-        android:textColor="#FFFFFF"
-        android:background="#6A1B9A"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="6dp"
-        android:paddingBottom="2dp"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
     <!-- 项目名 -->
     <TextView
         android:id="@+id/tvProjectName"
@@ -83,12 +67,12 @@
         android:text=""
         android:textSize="11sp"
         android:textColor="#E1BEE7"
-        android:background="#6A1B9A"
+        android:background="#1565C0"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:paddingTop="0dp"
         android:paddingBottom="6dp"
-        app:layout_constraintTop_toBottomOf="@id/tvModeBar"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -110,10 +94,10 @@
             android:layout_height="52dp"
             android:layout_weight="1"
             android:layout_marginEnd="6dp"
-            android:text="@string/scan_mode_pda"
+            android:text="@string/scan_mode_camera"
             android:textSize="15sp"
             android:textColor="#FFFFFF"
-            android:backgroundTint="#6A1B9A"
+            android:backgroundTint="#1976D2"
             android:stateListAnimator="@null" />
 
         <Button
