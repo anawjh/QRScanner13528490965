@@ -148,7 +148,7 @@ public final class ExcelExporter {
     }
 
     private static void buildCodes(Workbook workbook, Context context, String format,
-                                   List<String> items, boolean qr) {
+                                   List<String> items, boolean qr) throws Exception {
         XSSFSheet sheet = (XSSFSheet) workbook.createSheet("Codes");
         sheet.setColumnWidth(0, 8 * 256);
         sheet.setColumnWidth(1, 18 * 256);
