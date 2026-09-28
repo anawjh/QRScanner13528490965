@@ -4,9 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.media.AudioAttributes;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -46,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREF_LANG = "app_lang";
     private static final String PREF_SCAN = "scan_settings";
     private static final String KEY_CONTINUOUS = "continuous_scan";
-    private static final String KEY_BEEP_DURATION = "beep_duration";
     private static final String LANG_ZH = "zh";
     private static final String LANG_EN = "en";
 
@@ -64,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private final ActivityResultLauncher<ScanOptions> scanLauncher =
         registerForActivityResult(new ScanContract(), result -> {
             if (result.getContents() != null && !result.getContents().isEmpty()) {
-                playBeep();
+                playScanVoice();
                 addRecord(result.getContents(), "");
 
                 if (autoContinueEnabled && !userStopped) {
@@ -78,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         applySavedLocale();
+
+        ScanSpeaker.init(this);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -109,26 +107,16 @@ public class MainActivity extends AppCompatActivity {
         mainHandler.removeCallbacksAndMessages(null);
     }
 
-    private void playBeep() {
-        SharedPreferences prefs = getSharedPreferences(PREF_SCAN, MODE_PRIVATE);
-        int duration = prefs.getInt(KEY_BEEP_DURATION, 500);
-        if (duration == 0) return;
-        try {
-            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            if (notification == null) return;
-            Ringtone ringtone = RingtoneManager.getRingtone(this, notification);
-            if (ringtone == null) return;
-            ringtone.setAudioAttributes(new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build());
-            ringtone.play();
-            mainHandler.postDelayed(() -> {
-                try { ringtone.stop(); } catch (Exception ignored) {}
-            }, duration);
-        } catch (Exception e) {
-            // ignore
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (isFinishing()) {
+            ScanSpeaker.shutdown();
         }
+    }
+
+    private void playScanVoice() {
+        ScanSpeaker.speakScanSuccess(this);
     }
 
     private void startScan() {
@@ -171,26 +159,21 @@ public class MainActivity extends AppCompatActivity {
 
     private void showSoundPickerDialog() {
         String[] items = {
-            getString(R.string.beep_short),
-            getString(R.string.beep_medium),
-            getString(R.string.beep_long),
+            getString(R.string.voice_prompt),
             getString(R.string.sound_off)
         };
-        int[] durations = {300, 500, 1000, 0};
-        SharedPreferences prefs = getSharedPreferences(PREF_SCAN, MODE_PRIVATE);
-        int currentDuration = prefs.getInt(KEY_BEEP_DURATION, 500);
-        int selectedIndex = 1;
-        for (int i = 0; i < durations.length; i++) {
-            if (durations[i] == currentDuration) { selectedIndex = i; break; }
-        }
+        boolean[] enabled = {true, false};
+        boolean currentEnabled = ScanSpeaker.isEnabled(this);
+        int selectedIndex = currentEnabled ? 0 : 1;
 
         new AlertDialog.Builder(this)
             .setTitle(getString(R.string.menu_sound_settings))
             .setSingleChoiceItems(items, selectedIndex, (dialog, which) -> {
-                prefs.edit().putInt(KEY_BEEP_DURATION, durations[which]).apply();
+                boolean value = enabled[which];
+                ScanSpeaker.setEnabled(this, value);
                 dialog.dismiss();
-                if (durations[which] > 0) {
-                    playBeep();
+                if (value) {
+                    playScanVoice();
                 }
             })
             .setNegativeButton(android.R.string.cancel, null)

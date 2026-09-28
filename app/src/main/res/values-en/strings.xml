@@ -44,8 +44,7 @@
     <string name="share">Share</string>
     <string name="export_failed">Export failed: %s</string>
     <string name="menu_sound_settings">\uD83D\uDD0A Sound Settings</string>
-    <string name="beep_short">\uD83D\uDD14 Short (0.3s)</string>
-    <string name="beep_medium">\uD83D\uDD14 Medium (0.5s) \u2B50 Default</string>
-    <string name="beep_long">\uD83D\uDD14 Long (1s)</string>
+    <string name="voice_prompt">\uD83D\uDD0A Voice Prompt</string>
     <string name="sound_off">\uD83D\uDD07 Mute</string>
+    <string name="sound_hint">Spoken prompt after a successful scan</string>
 </resources>

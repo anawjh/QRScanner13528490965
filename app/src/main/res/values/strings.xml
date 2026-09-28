@@ -44,9 +44,9 @@
     <string name="share">分享</string>
     <string name="export_failed">导出失败: %s</string>
     <string name="menu_sound_settings">\uD83D\uDD0A 声音设置</string>
-    <string name="beep_short">\uD83D\uDD14 短促（0.3秒）</string>
-    <string name="beep_medium">\uD83D\uDD14 适中（0.5秒）\u2B50 默认</string>
-    <string name="beep_long">\uD83D\uDD14 最响（1秒）</string>
+    <string name="voice_prompt">\uD83D\uDD0A 语音提示</string>
     <string name="sound_off">\uD83D\uDD07 关闭声音</string>
-    <string name="sound_hint">使用手机通知铃声，长度可调</string>
+    <string name="sound_hint">扫码成功后语音播报</string>
+    <string name="voice_scan_success_zh" translatable="false">扫码成功</string>
+    <string name="voice_scan_success_en" translatable="false">Scan successful</string>
 </resources>
