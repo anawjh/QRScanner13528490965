@@ -21,7 +21,6 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import com.journeyapps.barcodescanner.DefaultDecoderFactory;
 import com.google.zxing.BarcodeFormat;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class CameraScanActivity extends AppCompatActivity {
@@ -75,15 +74,7 @@ public class CameraScanActivity extends AppCompatActivity {
         tvScanHint = findViewById(R.id.tvScanHint);
         Button btnBack = findViewById(R.id.btnBack);
 
-        List<BarcodeFormat> formats = Arrays.asList(
-            BarcodeFormat.QR_CODE,
-            BarcodeFormat.CODE_128,
-            BarcodeFormat.CODE_39,
-            BarcodeFormat.EAN_13,
-            BarcodeFormat.EAN_8,
-            BarcodeFormat.UPC_A,
-            BarcodeFormat.UPC_E
-        );
+        List<BarcodeFormat> formats = ScanMode.barcodeFormats(ScanMode.getMode(this));
         barcodeScanner.getBarcodeView().setDecoderFactory(new DefaultDecoderFactory(formats));
 
         btnBack.setOnClickListener(v -> finish());

@@ -120,12 +120,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startScan() {
+        String mode = ScanMode.getMode(this);
+
         ScanOptions options = new ScanOptions();
-        options.setDesiredBarcodeFormats(ScanOptions.QR_CODE);
-        options.setPrompt(getString(R.string.hint_scan));
+        options.setDesiredBarcodeFormats(ScanMode.formats(mode));
+        options.setPrompt(getString(ScanMode.promptRes(mode)));
         options.setBeepEnabled(false);
         options.setOrientationLocked(true);
         options.setCameraId(0);
+        options.setCaptureActivity(BarcodeCaptureActivity.class);
 
         String flashMode = getSharedPreferences(FlashSettingsActivity.PREF_NAME, MODE_PRIVATE)
                 .getString(FlashSettingsActivity.KEY_FLASH_MODE, FlashSettingsActivity.MODE_ON_SCAN);
@@ -138,6 +141,29 @@ public class MainActivity extends AppCompatActivity {
         }
 
         scanLauncher.launch(options);
+    }
+
+    private void showScanModeDialog() {
+        String[] items = new String[ScanMode.MODES.length];
+        for (int i = 0; i < ScanMode.MODES.length; i++) {
+            items[i] = getString(ScanMode.labelRes(ScanMode.MODES[i]));
+        }
+
+        String current = ScanMode.getMode(this);
+        int selectedIndex = 0;
+        for (int i = 0; i < ScanMode.MODES.length; i++) {
+            if (ScanMode.MODES[i].equals(current)) { selectedIndex = i; break; }
+        }
+
+        new AlertDialog.Builder(this)
+            .setTitle(getString(R.string.menu_scan_mode_title))
+            .setSingleChoiceItems(items, selectedIndex, (dialog, which) -> {
+                ScanMode.setMode(this, ScanMode.MODES[which]);
+                dialog.dismiss();
+                Toast.makeText(this, items[which], Toast.LENGTH_SHORT).show();
+            })
+            .setNegativeButton(android.R.string.cancel, null)
+            .show();
     }
 
     private boolean isContinuousEnabled() {
@@ -201,6 +227,8 @@ public class MainActivity extends AppCompatActivity {
             popup.getMenu().add(0, 11, 0, getString(R.string.menu_open_project));
             popup.getMenu().add(0, 12, 0, getString(R.string.menu_flash_settings));
 
+            popup.getMenu().add(0, 18, 0, getString(ScanMode.menuRes(ScanMode.getMode(this))));
+
             boolean on = isContinuousEnabled();
             popup.getMenu().add(0, 15, 0, on
                 ? getString(R.string.menu_continuous_on)
@@ -219,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
                     case 14: toggleLanguage(); return true;
                     case 15: toggleContinuous(); return true;
                     case 16: showSoundPickerDialog(); return true;
+                    case 18: showScanModeDialog(); return true;
                     case 3: showContactDialog(); return true;
                 }
                 return false;

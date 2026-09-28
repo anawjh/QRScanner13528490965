@@ -28,6 +28,15 @@
     <string name="flash_off_desc">扫码时不开闪光灯</string>
     <string name="save_settings">保存设置</string>
     <string name="hint_scan">将二维码放入框内，即可自动扫描</string>
+    <string name="hint_scan_barcode">将条形码放入框内，即可自动扫描</string>
+    <string name="hint_scan_all">将二维码或条形码放入框内，即可自动扫描</string>
+    <string name="menu_scan_mode_title">扫码格式</string>
+    <string name="menu_scan_mode_all">\uD83D\uDD0D 扫码格式：二维码+条码</string>
+    <string name="menu_scan_mode_qr">\uD83D\uDD0D 扫码格式：仅二维码</string>
+    <string name="menu_scan_mode_barcode">\uD83D\uDD0D 扫码格式：仅条码</string>
+    <string name="scan_mode_all">二维码 + 条形码</string>
+    <string name="scan_mode_qr">仅二维码</string>
+    <string name="scan_mode_barcode">仅条形码（Code128/EAN/UPC/ITF等）</string>
     <string name="scan_count">已扫: %d 条</string>
     <string name="hint_back">\u2190 返回</string>
     <string name="flash_status_on">闪光灯：常亮</string>

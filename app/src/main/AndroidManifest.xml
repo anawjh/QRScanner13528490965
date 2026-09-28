@@ -38,6 +38,14 @@
         </activity>
 
         <activity
+            android:name=".BarcodeCaptureActivity"
+            android:screenOrientation="portrait"
+            android:stateNotNeeded="true"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/zxing_CaptureTheme"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
+        <activity
             android:name=".FlashSettingsActivity"
             android:screenOrientation="portrait" />
 

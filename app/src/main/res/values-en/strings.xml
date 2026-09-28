@@ -28,6 +28,15 @@
     <string name="flash_off_desc">No flash during scanning</string>
     <string name="save_settings">Save Settings</string>
     <string name="hint_scan">Place QR code in frame to scan</string>
+    <string name="hint_scan_barcode">Place barcode in frame to scan</string>
+    <string name="hint_scan_all">Place QR code or barcode in frame to scan</string>
+    <string name="menu_scan_mode_title">Scan Format</string>
+    <string name="menu_scan_mode_all">\uD83D\uDD0D Format: QR + Barcode</string>
+    <string name="menu_scan_mode_qr">\uD83D\uDD0D Format: QR only</string>
+    <string name="menu_scan_mode_barcode">\uD83D\uDD0D Format: Barcode only</string>
+    <string name="scan_mode_all">QR code + Barcode</string>
+    <string name="scan_mode_qr">QR code only</string>
+    <string name="scan_mode_barcode">Barcode only (Code128/EAN/UPC/ITF)</string>
     <string name="scan_count">Scanned: %d</string>
     <string name="hint_back">\u2190 Back</string>
     <string name="flash_status_on">Flash: Always On</string>
