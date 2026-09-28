@@ -40,6 +40,8 @@ public class SettingsActivity extends AppCompatActivity {
             Blacklist.count(this)), v -> openBlacklist());
         addSwitchRow(R.string.set_save_photo, ScanSettings.isSavePhoto(this),
             checked -> ScanSettings.setSavePhoto(this, checked));
+        addRow(R.string.set_photo_path, ScanPhotoStore.displayPath(this),
+            v -> startActivity(new Intent(this, PhotoGalleryActivity.class)));
         addSwitchRow(R.string.set_continuous, ScanSettings.isContinuousEnabled(this),
             checked -> ScanSettings.setContinuousEnabled(this, checked));
         addRow(R.string.set_flash, "", v ->

@@ -37,6 +37,23 @@
     <string name="menu_scan_now">扫一扫</string>
     <string name="menu_scan_now_sub">边扫边看清单</string>
     <string name="quick_scan_empty">还没有扫码记录</string>
+    <string name="menu_photos">扫码照片</string>
+    <string name="menu_photos_sub">查看已保存照片</string>
+    <string name="state_photos">共 %d 张</string>
+    <string name="photo_gallery">扫码照片</string>
+    <string name="photo_path_hint">保存位置：%s</string>
+    <string name="photo_save_on">照片保存：开</string>
+    <string name="photo_save_off">照片保存：关</string>
+    <string name="photo_empty">还没有保存任何照片</string>
+    <string name="photo_viewer">照片</string>
+    <string name="photo_delete_photo">删除照片</string>
+    <string name="photo_delete_title">删除照片</string>
+    <string name="photo_delete_msg">确定要永久删除这张照片吗？\n%1$s</string>
+    <string name="photo_deleted">照片已删除</string>
+    <string name="photo_delete_all_title">清空所有照片</string>
+    <string name="photo_delete_all_msg">确定要删除全部 %1$d 张照片吗？此操作不可恢复。</string>
+    <string name="photo_delete_done">已删除 %1$d 张</string>
+    <string name="set_photo_path">照片保存位置</string>
 
     <!-- 扫码页 -->
     <string name="scan_counter">已录 %d 条</string>

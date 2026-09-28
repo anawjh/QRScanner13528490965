@@ -40,7 +40,8 @@ public class ScanRecordActivity extends AppCompatActivity {
 
         RecyclerView list = findViewById(R.id.list);
         list.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ScanRecordAdapter(project().records, this::deleteRecord, this::editRemark);
+        adapter = new ScanRecordAdapter(project().records, this::deleteRecord, this::editRemark,
+            path -> startActivity(PhotoViewerActivity.intent(this, path)));
         list.setAdapter(adapter);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());

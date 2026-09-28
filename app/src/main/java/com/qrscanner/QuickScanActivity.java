@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -24,8 +23,6 @@ import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,7 +31,8 @@ import java.util.Locale;
 import java.util.Map;
 
 public class QuickScanActivity extends AppCompatActivity
-        implements ScanRecordAdapter.OnDeleteListener, ScanRecordAdapter.OnEditRemarkListener {
+        implements ScanRecordAdapter.OnDeleteListener, ScanRecordAdapter.OnEditRemarkListener,
+        ScanRecordAdapter.OnPhotoClickListener {
 
     private static final int REQ_CAMERA = 210;
     private static final long DEDUPE_MS = 1500L;
@@ -45,6 +43,7 @@ public class QuickScanActivity extends AppCompatActivity
     private TextView tvStatus;
     private TextView tvEmpty;
     private ImageButton btnFlash;
+    private TextView tvPhotoToggle;
     private ScanRecordAdapter adapter;
 
     private final Map<String, Long> lastSeen = new HashMap<>();
@@ -74,17 +73,20 @@ public class QuickScanActivity extends AppCompatActivity
         tvStatus = findViewById(R.id.tvStatus);
         tvEmpty = findViewById(R.id.tvEmpty);
         btnFlash = findViewById(R.id.btnFlash);
+        tvPhotoToggle = findViewById(R.id.tvPhotoToggle);
         Button btnClose = findViewById(R.id.btnClose);
 
         projectManager = ProjectManager.getInstance(this);
         currentProject = projectManager.getCurrent();
 
-        adapter = new ScanRecordAdapter(currentProject.records, this, this);
+        adapter = new ScanRecordAdapter(currentProject.records, this, this, this);
         rvRecords.setLayoutManager(new LinearLayoutManager(this));
         rvRecords.setAdapter(adapter);
 
         btnClose.setOnClickListener(v -> finish());
         btnFlash.setOnClickListener(v -> toggleTorch());
+        tvPhotoToggle.setOnClickListener(v -> togglePhotoSave());
+        updatePhotoToggle();
 
         refreshList();
 
@@ -181,20 +183,22 @@ public class QuickScanActivity extends AppCompatActivity
 
     private String savePhoto(Bitmap bitmap) {
         if (bitmap == null || !ScanSettings.isSavePhoto(this)) return "";
-        try {
-            File pictures = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-            File dir = new File(pictures != null ? pictures : getFilesDir(), "scans");
-            if (!dir.exists() && !dir.mkdirs()) return "";
-            String stamp = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.getDefault())
-                .format(new Date());
-            File file = new File(dir, stamp + ".jpg");
-            try (FileOutputStream out = new FileOutputStream(file)) {
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-            }
-            return file.getAbsolutePath();
-        } catch (Exception e) {
-            return "";
-        }
+        return ScanPhotoStore.save(this, bitmap);
+    }
+
+    // ======================== 照片保存开关 ========================
+
+    private void updatePhotoToggle() {
+        tvPhotoToggle.setText(ScanSettings.isSavePhoto(this)
+            ? R.string.photo_save_on : R.string.photo_save_off);
+    }
+
+    private void togglePhotoSave() {
+        boolean next = !ScanSettings.isSavePhoto(this);
+        ScanSettings.setSavePhoto(this, next);
+        updatePhotoToggle();
+        Toast.makeText(this,
+            next ? R.string.photo_save_on : R.string.photo_save_off, Toast.LENGTH_SHORT).show();
     }
 
     // ======================== 列表 ========================
@@ -238,6 +242,13 @@ public class QuickScanActivity extends AppCompatActivity
             })
             .setNegativeButton(android.R.string.cancel, null)
             .show();
+    }
+
+    // ======================== 照片 ========================
+
+    @Override
+    public void onPhotoClick(String path) {
+        startActivity(PhotoViewerActivity.intent(this, path));
     }
 
     // ======================== 闪光灯 ========================

@@ -25,12 +25,28 @@ public class ScanRecordAdapter extends RecyclerView.Adapter<ScanRecordAdapter.Vi
         void onEdit(int position);
     }
 
+    public interface OnPhotoClickListener {
+        void onPhotoClick(String path);
+    }
+
+    private final OnPhotoClickListener photoListener;
+    private final java.util.concurrent.ExecutorService photoExecutor =
+        java.util.concurrent.Executors.newFixedThreadPool(2);
+
     public ScanRecordAdapter(List<ScanRecord> records,
                              OnDeleteListener deleteListener,
                              OnEditRemarkListener editListener) {
+        this(records, deleteListener, editListener, null);
+    }
+
+    public ScanRecordAdapter(List<ScanRecord> records,
+                             OnDeleteListener deleteListener,
+                             OnEditRemarkListener editListener,
+                             OnPhotoClickListener photoListener) {
         this.records = records;
         this.deleteListener = deleteListener;
         this.editListener = editListener;
+        this.photoListener = photoListener;
     }
 
     public void setRecords(List<ScanRecord> records) {
@@ -76,6 +92,28 @@ public class ScanRecordAdapter extends RecyclerView.Adapter<ScanRecordAdapter.Vi
 
         holder.btnDelete.setOnClickListener(v -> deleteListener.onDelete(holder.getBindingAdapterPosition()));
         holder.btnEdit.setOnClickListener(v -> editListener.onEdit(holder.getBindingAdapterPosition()));
+
+        String path = record.getImagePath();
+        boolean hasPhoto = photoListener != null && ScanPhotoStore.exists(path);
+        holder.ivThumb.setVisibility(hasPhoto ? View.VISIBLE : View.GONE);
+        holder.ivThumb.setImageDrawable(null);
+        if (hasPhoto) {
+            final String finalPath = path;
+            holder.ivThumb.setTag(finalPath);
+            photoExecutor.execute(() -> {
+                android.graphics.Bitmap bmp = ScanPhotoStore.decodeSampled(finalPath, 128, 128);
+                if (bmp == null) return;
+                holder.ivThumb.post(() -> {
+                    if (finalPath.equals(holder.ivThumb.getTag())) {
+                        holder.ivThumb.setImageBitmap(bmp);
+                    }
+                });
+            });
+            holder.ivThumb.setOnClickListener(v -> photoListener.onPhotoClick(finalPath));
+        } else {
+            holder.ivThumb.setTag(null);
+            holder.ivThumb.setOnClickListener(null);
+        }
     }
 
     @Override
@@ -85,6 +123,7 @@ public class ScanRecordAdapter extends RecyclerView.Adapter<ScanRecordAdapter.Vi
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvSeq, tvContent, tvTime, tvRemark;
+        android.widget.ImageView ivThumb;
         ImageButton btnDelete, btnEdit;
 
         ViewHolder(View itemView) {
@@ -93,6 +132,7 @@ public class ScanRecordAdapter extends RecyclerView.Adapter<ScanRecordAdapter.Vi
             tvContent = itemView.findViewById(R.id.tvContent);
             tvTime = itemView.findViewById(R.id.tvTime);
             tvRemark = itemView.findViewById(R.id.tvRemark);
+            ivThumb = itemView.findViewById(R.id.ivThumb);
             btnDelete = itemView.findViewById(R.id.btnDelete);
             btnEdit = itemView.findViewById(R.id.btnEdit);
         }

@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
@@ -27,8 +26,6 @@ import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -46,6 +43,7 @@ public class ScanActivity extends AppCompatActivity {
     private TextView tvStatus;
     private TextView tvBanner;
     private ImageButton btnFlash;
+    private TextView tvPhotoToggle;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Map<String, Long> lastSeen = new HashMap<>();
@@ -75,6 +73,7 @@ public class ScanActivity extends AppCompatActivity {
         tvStatus = findViewById(R.id.tvStatus);
         tvBanner = findViewById(R.id.tvBanner);
         btnFlash = findViewById(R.id.btnFlash);
+        tvPhotoToggle = findViewById(R.id.tvPhotoToggle);
         Button btnClose = findViewById(R.id.btnClose);
 
         projectManager = ProjectManager.getInstance(this);
@@ -82,6 +81,8 @@ public class ScanActivity extends AppCompatActivity {
 
         btnClose.setOnClickListener(v -> finish());
         btnFlash.setOnClickListener(v -> toggleTorch());
+        tvPhotoToggle.setOnClickListener(v -> togglePhotoSave());
+        updatePhotoToggle();
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -250,20 +251,22 @@ public class ScanActivity extends AppCompatActivity {
 
     private String savePhoto(Bitmap bitmap) {
         if (bitmap == null || !ScanSettings.isSavePhoto(this)) return "";
-        try {
-            File pictures = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-            File dir = new File(pictures != null ? pictures : getFilesDir(), "scans");
-            if (!dir.exists() && !dir.mkdirs()) return "";
-            String stamp = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.getDefault())
-                .format(new Date());
-            File file = new File(dir, stamp + ".jpg");
-            try (FileOutputStream out = new FileOutputStream(file)) {
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-            }
-            return file.getAbsolutePath();
-        } catch (Exception e) {
-            return "";
-        }
+        return ScanPhotoStore.save(this, bitmap);
+    }
+
+    // ======================== 照片保存开关 ========================
+
+    private void updatePhotoToggle() {
+        tvPhotoToggle.setText(ScanSettings.isSavePhoto(this)
+            ? R.string.photo_save_on : R.string.photo_save_off);
+    }
+
+    private void togglePhotoSave() {
+        boolean next = !ScanSettings.isSavePhoto(this);
+        ScanSettings.setSavePhoto(this, next);
+        updatePhotoToggle();
+        Toast.makeText(this,
+            next ? R.string.photo_save_on : R.string.photo_save_off, Toast.LENGTH_SHORT).show();
     }
 
     // ======================== 间隔与提示 ========================

@@ -38,12 +38,13 @@ public class MainActivity extends AppCompatActivity {
         {0, R.string.menu_gen_qr, R.string.menu_gen_sub},
         {0, R.string.menu_gen_qr_batch, R.string.menu_gen_batch_sub},
         {0, R.string.menu_scan_records, R.string.menu_records_sub},
-        {0, R.string.menu_gen_records, R.string.menu_records_sub}
+        {0, R.string.menu_gen_records, R.string.menu_records_sub},
+        {0, R.string.menu_photos, R.string.menu_photos_sub}
     };
 
     private static final String[] MENU_ICONS = {
         "▣", "A", "1-9", "▤", "#", "\uD83D\uDD16", "\uD83D\uDCD3", "\uD83D\uDD16", "\uD83D\uDCD3",
-        "\uD83D\uDCC4", "\uD83D\uDCC1"
+        "\uD83D\uDCC4", "\uD83D\uDCC1", "\uD83D\uDDCF"
     };
 
     private GridLayout grid;
@@ -68,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        buildGrid();
         updateSummary();
     }
 
@@ -104,6 +106,8 @@ public class MainActivity extends AppCompatActivity {
                 return length > 0 ? getString(R.string.state_length, length)
                     : getString(R.string.state_off);
             }
+            case 11:
+                return getString(R.string.state_photos, ScanPhotoStore.count(this));
             default:
                 return getString(MENU[index][2]);
         }
@@ -130,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
             case 8: openGenerator(true, true); break;
             case 9: startActivity(new Intent(this, ScanRecordActivity.class)); break;
             case 10: startActivity(new Intent(this, GenerateRecordActivity.class)); break;
+            case 11: startActivity(new Intent(this, PhotoGalleryActivity.class)); break;
         }
     }
 

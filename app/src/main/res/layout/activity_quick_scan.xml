@@ -26,6 +26,20 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
+        <TextView
+            android:id="@+id/tvPhotoToggle"
+            android:layout_width="wrap_content"
+            android:layout_height="34dp"
+            android:layout_marginEnd="6dp"
+            android:gravity="center"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:background="#4A148C"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:clickable="true"
+            android:focusable="true" />
+
         <ImageButton
             android:id="@+id/btnFlash"
             android:layout_width="40dp"

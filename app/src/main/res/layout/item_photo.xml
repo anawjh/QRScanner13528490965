@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="2dp">
+
+    <ImageView
+        android:id="@+id/ivPhoto"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:background="#ECEFF1"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/photo_gallery" />
+
+    <TextView
+        android:id="@+id/tvTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#88000000"
+        android:textColor="#FFFFFF"
+        android:textSize="9sp"
+        android:paddingStart="3dp"
+        android:paddingEnd="3dp"
+        android:paddingTop="1dp"
+        android:paddingBottom="1dp"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+</FrameLayout>

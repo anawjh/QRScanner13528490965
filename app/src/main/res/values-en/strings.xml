@@ -37,6 +37,23 @@
     <string name="menu_scan_now">Scan Now</string>
     <string name="menu_scan_now_sub">Scan and view list</string>
     <string name="quick_scan_empty">No records yet</string>
+    <string name="menu_photos">Scan Photos</string>
+    <string name="menu_photos_sub">View saved photos</string>
+    <string name="state_photos">%d photos</string>
+    <string name="photo_gallery">Scan Photos</string>
+    <string name="photo_path_hint">Saved in: %s</string>
+    <string name="photo_save_on">Photo save: ON</string>
+    <string name="photo_save_off">Photo save: OFF</string>
+    <string name="photo_empty">No photos saved yet</string>
+    <string name="photo_viewer">Photo</string>
+    <string name="photo_delete_photo">Delete photo</string>
+    <string name="photo_delete_title">Delete photo</string>
+    <string name="photo_delete_msg">Permanently delete this photo?\n%1$s</string>
+    <string name="photo_deleted">Photo deleted</string>
+    <string name="photo_delete_all_title">Delete all photos</string>
+    <string name="photo_delete_all_msg">Delete all %1$d photos? This cannot be undone.</string>
+    <string name="photo_delete_done">Deleted %1$d</string>
+    <string name="set_photo_path">Photo save location</string>
 
     <!-- Scan page -->
     <string name="scan_counter">Saved %d</string>
