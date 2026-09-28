@@ -35,6 +35,8 @@ public class SettingsActivity extends AppCompatActivity {
         container.removeAllViews();
         addSection(R.string.section_scan);
         addRow(R.string.set_alert_mode, alertLabel(), v -> pickAlertMode());
+        addRow(R.string.set_alert_test_vibrate, getString(R.string.set_alert_test_vibrate_desc),
+            v -> testVibrate());
         addRow(R.string.set_interval, intervalLabel(), v -> pickInterval());
         addRow(R.string.set_blacklist, getString(R.string.set_blacklist_value,
             Blacklist.count(this)), v -> openBlacklist());
@@ -55,6 +57,18 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     // ======================== 交互 ========================
+
+    private void testVibrate() {
+        if (!ScanSpeaker.canVibrate(this)) {
+            new AlertDialog.Builder(this)
+                .setTitle(R.string.set_alert_test_vibrate)
+                .setMessage(R.string.vibrate_not_supported)
+                .setPositiveButton(R.string.confirm, null)
+                .show();
+            return;
+        }
+        ScanSpeaker.vibrate(this, new long[]{0, 600, 200, 600});
+    }
 
     private void pickAlertMode() {
         String[] labels = {

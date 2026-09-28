@@ -103,6 +103,7 @@
             android:layout_marginStart="6dp"
             android:gravity="center"
             android:background="#C62828"
+            android:text="@string/photo_delete_all"
             android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:clickable="true"

@@ -44,6 +44,7 @@ public class ScanActivity extends AppCompatActivity {
     private TextView tvBanner;
     private ImageButton btnFlash;
     private TextView tvPhotoToggle;
+    private Button btnExport;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Map<String, Long> lastSeen = new HashMap<>();
@@ -75,6 +76,7 @@ public class ScanActivity extends AppCompatActivity {
         btnFlash = findViewById(R.id.btnFlash);
         tvPhotoToggle = findViewById(R.id.tvPhotoToggle);
         Button btnClose = findViewById(R.id.btnClose);
+        btnExport = findViewById(R.id.btnExport);
 
         projectManager = ProjectManager.getInstance(this);
         currentProject = projectManager.getCurrent();
@@ -82,6 +84,7 @@ public class ScanActivity extends AppCompatActivity {
         btnClose.setOnClickListener(v -> finish());
         btnFlash.setOnClickListener(v -> toggleTorch());
         tvPhotoToggle.setOnClickListener(v -> togglePhotoSave());
+        btnExport.setOnClickListener(v -> exportExcel());
         updatePhotoToggle();
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
@@ -302,6 +305,38 @@ public class ScanActivity extends AppCompatActivity {
 
     private void updateCounter() {
         tvCounter.setText(getString(R.string.scan_counter, currentProject.records.size()));
+        updateExportLabel();
+    }
+
+    // ======================== 导出 Excel ========================
+
+    private void updateExportLabel() {
+        int count = currentProject.records.size();
+        btnExport.setEnabled(count > 0);
+        btnExport.setAlpha(count > 0 ? 1f : 0.5f);
+        btnExport.setText(getString(R.string.export_records_excel_count, count));
+    }
+
+    private void exportExcel() {
+        if (currentProject.records.isEmpty()) {
+            Toast.makeText(this, R.string.export_no_records, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (ExcelExporter.requiresImageConfirm(currentProject.records.size())) {
+            new AlertDialog.Builder(this)
+                .setTitle(R.string.export_image_confirm_title)
+                .setMessage(getString(R.string.export_image_confirm_message,
+                    currentProject.records.size(), ExcelExporter.MAX_IMAGES))
+                .setPositiveButton(R.string.confirm, (d, w) -> doExport())
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+            return;
+        }
+        doExport();
+    }
+
+    private void doExport() {
+        ExcelExporter.exportScanRecords(this, currentProject.records, currentProject.name);
     }
 
     // ======================== 闪光灯 ========================

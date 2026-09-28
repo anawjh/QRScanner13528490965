@@ -16,8 +16,13 @@ public final class ScanSpeaker {
     private static final String LANG_EN = "en";
     private static final String LANG_ZH = "zh";
 
-    private static final long[] SUCCESS_PATTERN = {0, 60};
-    private static final long[] BLOCKED_PATTERN = {0, 200, 120, 200};
+    private static final long[] SUCCESS_PATTERN = {0, 130};
+    private static final long[] BLOCKED_PATTERN = {0, 250, 140, 250};
+
+    private static final AudioAttributes VIBRATE_ATTRIBUTES = new AudioAttributes.Builder()
+        .setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
+        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+        .build();
 
     private static TextToSpeech tts;
     private static boolean ready = false;
@@ -88,12 +93,27 @@ public final class ScanSpeaker {
     }
 
     public static void vibrate(Context context, long[] pattern) {
+        Vibrator vibrator = vibrator(context);
+        if (vibrator == null || !vibrator.hasVibrator()) return;
         try {
-            Vibrator vibrator = vibrator(context);
-            if (vibrator == null || !vibrator.hasVibrator()) return;
-            vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1));
+            int[] amplitudes = new int[pattern.length];
+            for (int i = 0; i < pattern.length; i++) {
+                amplitudes[i] = pattern[i] == 0 ? 0 : 255;
+            }
+            if (vibrator.hasAmplitudeControl()) {
+                vibrator.vibrate(VibrationEffect.createWaveform(pattern, amplitudes, -1),
+                    VIBRATE_ATTRIBUTES);
+            } else {
+                vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1),
+                    VIBRATE_ATTRIBUTES);
+            }
         } catch (Exception ignored) {
         }
+    }
+
+    public static boolean canVibrate(Context context) {
+        Vibrator vibrator = vibrator(context);
+        return vibrator != null && vibrator.hasVibrator();
     }
 
     public static void shutdown() {

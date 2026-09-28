@@ -20,6 +20,7 @@ public class PhotoGalleryActivity extends AppCompatActivity
     private RecyclerView rvPhotos;
     private TextView tvEmpty;
     private TextView tvPhotoToggle;
+    private TextView btnDeleteAll;
     private PhotoAdapter adapter;
     private androidx.activity.result.ActivityResultLauncher<android.content.Intent> viewerLauncher;
 
@@ -32,7 +33,7 @@ public class PhotoGalleryActivity extends AppCompatActivity
         tvEmpty = findViewById(R.id.tvEmpty);
         tvPhotoToggle = findViewById(R.id.tvPhotoToggle);
         Button btnBack = findViewById(R.id.btnBack);
-        TextView btnDeleteAll = findViewById(R.id.btnDeleteAll);
+        btnDeleteAll = findViewById(R.id.btnDeleteAll);
 
         ((TextView) findViewById(R.id.tvPath)).setText(
             getString(R.string.photo_path_hint, ScanPhotoStore.displayPath(this)));
@@ -66,6 +67,11 @@ public class PhotoGalleryActivity extends AppCompatActivity
         adapter.submit(files);
         tvEmpty.setVisibility(files.isEmpty() ? View.VISIBLE : View.GONE);
         tvEmpty.setText(R.string.photo_empty);
+        btnDeleteAll.setText(files.isEmpty()
+            ? R.string.photo_delete_all
+            : getString(R.string.photo_delete_all_count, files.size()));
+        btnDeleteAll.setEnabled(!files.isEmpty());
+        btnDeleteAll.setAlpha(files.isEmpty() ? 0.5f : 1f);
         tvPhotoToggle.setText(ScanSettings.isSavePhoto(this)
             ? R.string.photo_save_on : R.string.photo_save_off);
     }

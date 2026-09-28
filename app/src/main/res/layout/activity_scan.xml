@@ -73,7 +73,7 @@
         android:layout_gravity="center_horizontal|bottom"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="96dp"
+        android:layout_marginBottom="156dp"
         android:background="#DDB71C1C"
         android:textColor="#FFFFFF"
         android:textSize="14sp"
@@ -86,12 +86,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_marginBottom="27dp"
+        android:layout_marginBottom="87dp"
         android:background="#88000000"
         android:textColor="#FFFFFF"
         android:textSize="13sp"
         android:gravity="center"
         android:padding="10dp" />
+
+    <Button
+        android:id="@+id/btnExport"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="33dp"
+        android:backgroundTint="#2E7D32"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:text="@string/export_records_excel"
+        android:stateListAnimator="@null"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMinTextSize="11sp"
+        android:autoSizeMaxTextSize="15sp"
+        android:autoSizeStepGranularity="1sp" />
 
     <TextView
         android:layout_width="match_parent"
