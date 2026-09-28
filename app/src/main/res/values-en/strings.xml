@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Batch QR Scanner</string>
-
     <!-- Home -->
     <string name="home_summary">Project: %1$s (%2$d)</string>
     <string name="menu_alpha">Starts with Letter</string>
@@ -61,43 +60,10 @@
     <string name="set_alert_test_vibrate">Test vibration</string>
     <string name="set_alert_test_vibrate_desc">Tap to test</string>
     <string name="vibrate_not_supported">This device has no vibrator, or vibration is not permitted</string>
-    <string name="set_ad_manage">Ad content</string>
-    <string name="set_ad_manage_desc">By time range</string>
-    <string name="ad_manage_title">Ad content</string>
-    <string name="ad_manage_hint">Ad content is bundled in the app and works offline. Add/edit/delete directly, or use Import to paste in bulk. Optionally set the ads.json URL in your own repository for automatic updates.</string>
-    <string name="ad_import">Import</string>
     <string name="ad_import_hint">Paste ad content, either:
 0-8|ad text|https://link
 or
 [{"start":0,"end":8,"text":"ad text","link":"https://link"}]</string>
-    <string name="ad_import_bad">No ad content parsed, please check the format</string>
-    <string name="ad_restore_builtin">Restore built-in</string>
-    <string name="ad_add">Add</string>
-    <string name="ad_edit">Edit</string>
-    <string name="ad_delete">Delete</string>
-    <string name="ad_delete_msg">Delete this ad?\n%1$s</string>
-    <string name="ad_empty">No ad content yet</string>
-    <string name="ad_active_now">Showing now</string>
-    <string name="ad_start_hour">Start hour (0-23)</string>
-    <string name="ad_end_hour">End hour (exclusive, 0-24)</string>
-    <string name="ad_content">Ad text</string>
-    <string name="ad_link">Click-through link (optional)</string>
-    <string name="ad_bad_hour">Start hour must be a number from 0 to 23</string>
-    <string name="ad_bad_hour_end">End hour must be a number from 0 to 24</string>
-    <string name="ad_empty_content">Ad text cannot be empty</string>
-    <string name="ad_remote">File URL</string>
-    <string name="ad_remote_title">ads.json URL in your own repository (optional)</string>
-    <string name="ad_remote_hint">https://raw.githubusercontent.com/user/repo/branch/ads.json</string>
-    <string name="ad_remote_clear">Clear</string>
-    <string name="ad_remote_state">Auto update: %1$s (read every 60s)</string>
-    <string name="ad_source_local">In use: local content (works offline)</string>
-    <string name="ad_source_cached">In use: content from last successful fetch (%2$s)\n%1$s</string>
-    <string name="ad_source_pending">In use: local content, nothing fetched yet\n%1$s</string>
-    <string name="ad_source_error">Update failed, still using last content: %1$s</string>
-    <string name="ad_just_now">just now</string>
-    <string name="ad_minutes_ago">%1$d min ago</string>
-    <string name="ad_hours_ago">%1$d h ago</string>
-
     <!-- Scan page -->
     <string name="scan_counter">Saved %d</string>
     <string name="scan_ready">Ready…</string>
@@ -107,7 +73,6 @@ or
     <string name="flash_toggle">Flash</string>
     <string name="close">Close</string>
     <string name="confirm">Confirm</string>
-
     <!-- Blacklist -->
     <string name="blacklist_hit_title">Blacklisted item</string>
     <string name="blacklist_hit_banner">⚠ Blocked: %s</string>
@@ -123,7 +88,6 @@ or
     <string name="blacklist_full">Blacklist is full (%d)</string>
     <string name="blacklist_exists">Already in the blacklist</string>
     <string name="blacklist_too_many">Too many entries, remove some first</string>
-
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="section_scan">Scanning</string>
@@ -150,7 +114,6 @@ or
     <string name="seconds_value">%d s</string>
     <string name="millis_value">%d ms</string>
     <string name="reset">Reset</string>
-
     <!-- Generator -->
     <string name="generator_qr_title">Generate QR Code</string>
     <string name="generator_barcode_title">Generate Barcode</string>
@@ -181,7 +144,6 @@ or
     <string name="batch_saved">Generate record saved</string>
     <string name="batch_invalid_title">Invalid content</string>
     <string name="batch_invalid_message">Line %1$d "%2$s": %3$s</string>
-
     <!-- Generate records -->
     <string name="generate_records_title">Generate Records</string>
     <string name="empty_generate_records">No generate records yet</string>
@@ -191,7 +153,6 @@ or
     <string name="gen_delete_message">Delete this generate record?</string>
     <string name="gen_export_again">Export again</string>
     <string name="btn_delete">Delete</string>
-
     <!-- Scan records -->
     <string name="records_header">%1$s (%2$d)</string>
     <string name="empty_records">No scan records yet</string>
@@ -201,7 +162,6 @@ or
     <string name="records_blocked_prefix">⚠ Blocked · %s</string>
     <string name="records_remark_prefix">Remark: %s</string>
     <string name="export_records_excel">Export Excel</string>
-
     <!-- Formats -->
     <string name="format_qr_code">QR Code</string>
     <string name="format_code_39">Code 39</string>
@@ -217,7 +177,6 @@ or
     <string name="format_data_matrix">Data Matrix</string>
     <string name="format_pdf_417">PDF417</string>
     <string name="format_unknown">Unknown</string>
-
     <!-- Legacy -->
     <string name="menu_new_project">New project</string>
     <string name="menu_open_project">Open project</string>

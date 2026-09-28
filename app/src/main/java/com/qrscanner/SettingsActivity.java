@@ -44,8 +44,6 @@ public class SettingsActivity extends AppCompatActivity {
             checked -> ScanSettings.setSavePhoto(this, checked));
         addRow(R.string.set_photo_path, ScanPhotoStore.displayPath(this),
             v -> startActivity(new Intent(this, PhotoGalleryActivity.class)));
-        addRow(R.string.set_ad_manage, getString(R.string.set_ad_manage_desc),
-            v -> startActivity(new Intent(this, AdManageActivity.class)));
         addSwitchRow(R.string.set_continuous, ScanSettings.isContinuousEnabled(this),
             checked -> ScanSettings.setContinuousEnabled(this, checked));
         addRow(R.string.set_flash, "", v ->

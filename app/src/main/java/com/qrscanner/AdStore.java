@@ -21,10 +21,19 @@ public final class AdStore {
     private static final String KEY_REMOTE_TIME = "remote_time";
     private static final String KEY_REMOTE_ERROR = "remote_error";
 
+    /**
+     * 默认模式：广告内容来源固定为本仓库的 ads.json，不通过菜单配置。
+     * 仓库内修改 ads.json 并提交后，App 每 60 秒自动读取一次。
+     */
+    private static final String DEFAULT_REMOTE_URL =
+        "https://raw.githubusercontent.com/anawjh/QRScanner13528490965/feature/v3/ads.json";
+
     private AdStore() {}
 
     public static String getRemoteUrl(Context context) {
-        return prefs(context).getString(KEY_REMOTE, "").trim();
+        String url = prefs(context).getString(KEY_REMOTE, "");
+        if (url == null || url.trim().isEmpty()) return DEFAULT_REMOTE_URL;
+        return url.trim();
     }
 
     public static void setRemoteUrl(Context context, String url) {

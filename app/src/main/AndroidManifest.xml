@@ -53,21 +53,11 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/Theme.QRScanner" />
 
-        <activity
-            android:name=".PhotoGalleryActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-
-        <activity
-            android:name=".PhotoViewerActivity"
+  <activity
+    android:name=".PhotoViewerActivity"
             android:screenOrientation="portrait"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/Theme.QRScanner" />
-
-        <activity
-            android:name=".AdManageActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
 
         <activity
             android:name=".SettingsActivity"
