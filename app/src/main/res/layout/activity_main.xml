@@ -46,7 +46,7 @@
             android:layout_width="44dp"
             android:layout_height="44dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_set_as_tab"
+            android:src="@drawable/ic_language"
             android:tint="#FFFFFF"
             android:contentDescription="@string/menu_switch_lang" />
 

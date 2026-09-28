@@ -319,7 +319,7 @@ public class ScanActivity extends AppCompatActivity {
         try {
             barcodeScanner.setTorchOn();
             isTorchOn = true;
-            btnFlash.setImageResource(android.R.drawable.ic_lock_silent_mode_off);
+            btnFlash.setImageResource(R.drawable.ic_flash_on);
         } catch (Exception e) {
             isTorchOn = false;
         }
@@ -329,7 +329,7 @@ public class ScanActivity extends AppCompatActivity {
         try {
             barcodeScanner.setTorchOff();
             isTorchOn = false;
-            btnFlash.setImageResource(android.R.drawable.ic_lock_silent_mode);
+            btnFlash.setImageResource(R.drawable.ic_flash_off);
         } catch (Exception e) {
             isTorchOn = false;
         }
