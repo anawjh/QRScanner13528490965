@@ -1,9 +1,8 @@
 package com.qrscanner;
 
-import android.util.Size;
-
 import com.journeyapps.barcodescanner.CaptureActivity;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
+import com.journeyapps.barcodescanner.Size;
 
 public class BarcodeCaptureActivity extends CaptureActivity {
 
