@@ -17,3 +17,6 @@ local.properties
 *.dex
 *.class
 *.log
+key.properties
+*.jks
+*.keystore
