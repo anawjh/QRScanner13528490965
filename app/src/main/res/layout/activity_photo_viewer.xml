@@ -50,7 +50,7 @@
             android:paddingEnd="8dp"
             android:maxLines="2"
             android:ellipsize="none"
-            android:text="@string/btn_delete_photo"
+            android:text="@string/photo_delete_photo"
             android:textSize="14sp"
             android:textColor="#FFFFFF"
             android:backgroundTint="#C62828"
