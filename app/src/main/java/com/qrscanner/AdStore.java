@@ -20,20 +20,33 @@ public final class AdStore {
     private static final String KEY_REMOTE_CACHE = "remote_cache";
     private static final String KEY_REMOTE_TIME = "remote_time";
     private static final String KEY_REMOTE_ERROR = "remote_error";
+    private static final String KEY_REMOTE_ACTIVE = "remote_active";
 
     /**
-     * 默认模式：广告内容来源固定为本仓库的 ads.json，不通过菜单配置。
-     * 仓库内修改 ads.json 并提交后，App 每 60 秒自动读取一次。
+     * 默认模式：按顺序尝试这些云端内容源，谁成功就用谁，全部失败才用内置内容。
+     * 各源内容均可随时在对应位置更新，App 每 60 秒自动读取一次。
      */
-    private static final String DEFAULT_REMOTE_URL =
-        "https://raw.githubusercontent.com/anawjh/QRScanner13528490965/feature/v3/ads.json";
+    private static final String[] DEFAULT_URLS = {
+        "http://1025-10-cn/nc/index.php",
+        "https://raw.githubusercontent.com/anawjh/QRScanner13528490965/feature/v3/ads.json"
+    };
 
     private AdStore() {}
 
+    /** 实际要尝试的内容源列表。 */
+    public static String[] sources(Context context) {
+        String override = prefs(context).getString(KEY_REMOTE, "");
+        if (override == null || override.trim().isEmpty()) return DEFAULT_URLS;
+        return new String[]{override.trim()};
+    }
+
+    public static String getRemoteActive(Context context) {
+        String a = prefs(context).getString(KEY_REMOTE_ACTIVE, "");
+        return a == null || a.isEmpty() ? DEFAULT_URLS[0] : a;
+    }
+
     public static String getRemoteUrl(Context context) {
-        String url = prefs(context).getString(KEY_REMOTE, "");
-        if (url == null || url.trim().isEmpty()) return DEFAULT_REMOTE_URL;
-        return url.trim();
+        return getRemoteActive(context);
     }
 
     public static void setRemoteUrl(Context context, String url) {
@@ -45,14 +58,16 @@ public final class AdStore {
             .remove(KEY_REMOTE_CACHE)
             .remove(KEY_REMOTE_TIME)
             .remove(KEY_REMOTE_ERROR)
+            .remove(KEY_REMOTE_ACTIVE)
             .apply();
     }
 
-    static void saveRemote(Context context, List<AdEntry> entries) {
+    static void saveRemote(Context context, List<AdEntry> entries, String url) {
         JSONArray arr = new JSONArray();
         for (AdEntry e : entries) arr.put(e.toJson());
         prefs(context).edit()
             .putString(KEY_REMOTE_CACHE, arr.toString())
+            .putString(KEY_REMOTE_ACTIVE, url)
             .putLong(KEY_REMOTE_TIME, System.currentTimeMillis())
             .remove(KEY_REMOTE_ERROR)
             .apply();

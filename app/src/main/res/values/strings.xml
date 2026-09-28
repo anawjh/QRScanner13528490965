@@ -37,8 +37,9 @@
     <string name="ad_diag_title">广告内容来源</string>
     <string name="ad_diag_builtin">当前显示：安装包内置内容</string>
     <string name="ad_diag_cached">当前显示：上次成功拉取的内容</string>
-    <string name="ad_diag_url">来源：%1$s</string>
-    <string name="ad_diag_error">上次拉取失败：%1$s</string>
+    <string name="ad_diag_active">生效地址：%1$s</string>
+    <string name="ad_diag_source">候选源：%1$s</string>
+    <string name="ad_diag_error">拉取失败：%1$s</string>
     <string name="ad_diag_nolink">当前这条未配置跳转链接</string>
     <string name="ad_diag_fetch_now">立即拉取</string>
     <string name="ad_diag_ok">拉取成功，%1$d 条</string>

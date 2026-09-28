@@ -37,8 +37,9 @@
     <string name="ad_diag_title">Ad content source</string>
     <string name="ad_diag_builtin">Showing: built-in content</string>
     <string name="ad_diag_cached">Showing: content from last successful fetch</string>
-    <string name="ad_diag_url">Source: %1$s</string>
-    <string name="ad_diag_error">Last fetch failed: %1$s</string>
+    <string name="ad_diag_active">Active: %1$s</string>
+    <string name="ad_diag_source">Candidate: %1$s</string>
+    <string name="ad_diag_error">Fetch failed: %1$s</string>
     <string name="ad_diag_nolink">Current ad has no click-through link</string>
     <string name="ad_diag_fetch_now">Fetch now</string>
     <string name="ad_diag_ok">Fetched %1$d entries</string>

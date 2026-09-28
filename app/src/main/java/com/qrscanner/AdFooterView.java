@@ -188,10 +188,17 @@ public class AdFooterView extends FrameLayout {
         StringBuilder sb = new StringBuilder();
         boolean cached = AdStore.hasRemoteCache(ctx);
         sb.append(cached ? ctx.getString(R.string.ad_diag_cached) : ctx.getString(R.string.ad_diag_builtin));
-        sb.append('\n').append(ctx.getString(R.string.ad_diag_url, AdStore.getRemoteUrl(ctx)));
+        sb.append('\n').append(ctx.getString(R.string.ad_diag_active, AdStore.getRemoteActive(ctx)));
+
+        String[] sources = AdStore.sources(ctx);
+        if (sources.length > 1) {
+            for (String s : sources) {
+                sb.append('\n').append(ctx.getString(R.string.ad_diag_source, s));
+            }
+        }
 
         long t = AdStore.getRemoteTime(ctx);
-        if (t > 0L) {
+        if (cached && t > 0L) {
             long min = (System.currentTimeMillis() - t) / 60000L;
             sb.append('\n').append(min < 1L
                 ? ctx.getString(R.string.ad_just_now)

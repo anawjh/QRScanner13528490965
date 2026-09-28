@@ -3,6 +3,7 @@ package com.qrscanner;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Html;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -30,31 +31,39 @@ public final class AdPoller {
 
     private AdPoller() {}
 
-    /** 拉取一次并写入缓存；立即返回，不阻塞调用方。 */
+    /** 按顺序拉取云端内容源，第一个成功的即生效；全部失败时汇报原因。 */
     public static void pollAsync(final Context context, final Callback callback) {
         final Context app = context.getApplicationContext();
-        final String url = AdStore.getRemoteUrl(app);
-        if (url.isEmpty()) return;
+        final String[] sources = AdStore.sources(app);
+        if (sources.length == 0) return;
 
         if (worker != null && worker.isAlive()) return;
 
         worker = new Thread(() -> {
-            final List<AdEntry> result = new ArrayList<>();
-            try {
-                String body = fetch(url);
-                result.addAll(parse(body));
-                if (result.isEmpty()) {
-                    AdStore.saveRemoteError(app, "内容为空或格式无法识别");
-                } else {
-                    AdStore.saveRemote(app, result);
+            StringBuilder errs = new StringBuilder();
+            for (String url : sources) {
+                try {
+                    String body = fetch(url);
+                    List<AdEntry> parsed = parse(body);
+                    if (parsed.isEmpty()) {
+                        errs.append(url).append(": 内容为空或无法识别; ");
+                        continue;
+                    }
+                    AdStore.saveRemote(app, parsed, url);
+                    MAIN.post(() -> {
+                        if (callback != null) callback.onAdLoaded(parsed);
+                    });
+                    return;
+                } catch (Exception e) {
+                    String msg = e.getMessage() == null ? e.toString() : e.getMessage();
+                    Log.w(TAG, "poll failed [" + url + "]: " + msg);
+                    errs.append(url).append(": ").append(msg).append("; ");
                 }
-            } catch (Exception e) {
-                String msg = e.getMessage() == null ? e.toString() : e.getMessage();
-                Log.w(TAG, "poll failed: " + msg);
-                AdStore.saveRemoteError(app, msg);
             }
+            final String detail = errs.toString().replaceAll("; $", "");
+            AdStore.saveRemoteError(app, detail);
             MAIN.post(() -> {
-                if (callback != null) callback.onAdLoaded(result);
+                if (callback != null) callback.onAdLoaded(new ArrayList<AdEntry>());
             });
         });
         worker.setDaemon(true);
@@ -89,10 +98,11 @@ public final class AdPoller {
     }
 
     /**
-     * 支持三种格式：
+     * 支持四种格式：
      * 1) JSON 数组：[{"start":0,"end":8,"text":"...","link":"https://..."}]
      * 2) JSON 对象：{"entries":[...]}，即仓库里 ads.json 的格式
      * 3) 纯文本，每行一条：0-8|广告内容|https://跳转链接
+     * 4) HTML 页面：取 marquee 广告文字作为文案、页面里 window.open() 的第一个地址作为跳转链接
      */
     static List<AdEntry> parse(String body) {
         List<AdEntry> out = new ArrayList<>();
@@ -117,6 +127,17 @@ public final class AdPoller {
             }
         }
 
+        if (!trimmed.startsWith("<")) {
+            return fromText(trimmed);
+        }
+
+        AdEntry html = fromHtml(trimmed);
+        if (html != null) out.add(html);
+        return out;
+    }
+
+    private static List<AdEntry> fromText(String trimmed) {
+        List<AdEntry> out = new ArrayList<>();
         String[] lines = trimmed.split("\\r?\\n");
         for (String line : lines) {
             String s = line.trim();
@@ -131,6 +152,54 @@ public final class AdPoller {
             out.add(new AdEntry(hours[0], hours[1], text, link));
         }
         return out;
+    }
+
+    /**
+     * 解析本地中转 / 任意页面：取 marquee 广告文字作为文案，
+     * 页面里 window.open() 的第一个地址作为跳转链接。
+     */
+    static AdEntry fromHtml(String html) {
+        if (html == null || html.isEmpty()) return null;
+
+        String link = "";
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile(
+            "(?i)window\\.open\\s*\\(\\s*['\"](https?://[^'\"]+)['\"]").matcher(html);
+        if (m.find()) link = m.group(1);
+        if (link.isEmpty()) {
+            m = java.util.regex.Pattern.compile(
+                "(?i)<a[^>]+href\\s*=\\s*['\"](https?://[^'\"]+)['\"]").matcher(html);
+            if (m.find()) link = m.group(1);
+        }
+
+        String text = "";
+        m = java.util.regex.Pattern.compile(
+            "(?is)class\\s*=\\s*['\"][^'\"]*marquee[^'\"]*['\"]\\s*>([^<]+)").matcher(html);
+        if (m.find()) text = Html.fromHtml(m.group(1).trim(), Html.FROM_HTML_MODE_LEGACY).toString().trim();
+        text = collapse(text);
+
+        if (text.isEmpty()) {
+            String strip = html.replaceAll("(?is)<script[^>]*>.*?</script>", " ")
+                .replaceAll("(?is)<style[^>]*>.*?</style>", " ")
+                .replaceAll("<br\\s*/?>|</p>|</div>|</tr>|</li>", "\n")
+                .replaceAll("(?s)<[^>]+>", "\n");
+            for (String line : strip.split("\\r?\\n")) {
+                String t = collapse(line);
+                if (t.length() >= 6) {
+                    text = t;
+                    break;
+                }
+            }
+        }
+        if (text.isEmpty()) return null;
+        return new AdEntry(0, 24, text, link);
+    }
+
+    /** 去除多余空白并把页面里为对齐滚动的重复片段去重。 */
+    private static String collapse(String raw) {
+        if (raw == null) return "";
+        String s = raw.replaceAll("\\s+", " ").trim();
+        if (s.length() > 160) s = s.substring(0, 160);
+        return s;
     }
 
     /** 解析 "0-8"、"0:00-8:00"、"8"（单值当作到当天结束）。 */
