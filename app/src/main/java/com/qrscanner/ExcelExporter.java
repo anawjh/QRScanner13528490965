@@ -28,7 +28,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.apache.poi.xssf.usermodel.XSSFDrawing;
-import org.apache.poi.xssf.usermodel.XSSFPicture;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -150,7 +149,7 @@ public final class ExcelExporter {
 
     private static void buildCodes(Workbook workbook, Context context, String format,
                                    List<String> items, boolean qr) {
-        XSSFSheet sheet = workbook.createSheet("Codes");
+        XSSFSheet sheet = (XSSFSheet) workbook.createSheet("Codes");
         sheet.setColumnWidth(0, 8 * 256);
         sheet.setColumnWidth(1, 18 * 256);
         sheet.setColumnWidth(2, 50 * 256);
@@ -189,8 +188,7 @@ public final class ExcelExporter {
                 int index = workbook.addPicture(png, Workbook.PICTURE_TYPE_PNG);
                 XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0,
                     IMAGE_COL, i + 1, IMAGE_COL + 1, i + 2);
-                XSSFPicture picture = drawing.createPicture(anchor, index);
-                picture.setAnchor(anchor);
+                drawing.createPicture(anchor, index);
             }
         }
 

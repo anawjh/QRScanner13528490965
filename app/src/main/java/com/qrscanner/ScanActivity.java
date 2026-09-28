@@ -187,12 +187,12 @@ public class ScanActivity extends AppCompatActivity {
 
         RadioGroup group = new RadioGroup(this);
         RadioButton skip = radio(R.string.blacklist_action_skip, choices[0]);
-        RadioButton keep = radio(R.string.blacklist_action_keep, choices[1]);
+        RadioButton keepButton = radio(R.string.blacklist_action_keep, choices[1]);
         group.addView(skip);
-        group.addView(keep);
+        group.addView(keepButton);
         group.setOnCheckedChangeListener((g, id) -> {
             choices[0] = id == skip.getId();
-            choices[1] = id == keep.getId();
+            choices[1] = id == keepButton.getId();
         });
         box.addView(group);
 
@@ -206,13 +206,13 @@ public class ScanActivity extends AppCompatActivity {
             .setMessage(content)
             .setView(box)
             .setPositiveButton(R.string.confirm, (d, w) -> {
-                boolean keep = choices[1];
+                boolean keepRecord = choices[1];
                 if (remember.isChecked()) {
-                    Blacklist.setAction(this, keep
+                    Blacklist.setAction(this, keepRecord
                         ? Blacklist.ACTION_KEEP
                         : Blacklist.ACTION_SKIP);
                 }
-                if (keep) {
+                if (keepRecord) {
                     addRecord(content, format, true, savePhoto(bitmap));
                 }
                 showBanner(null);

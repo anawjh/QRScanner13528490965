@@ -89,6 +89,14 @@ public class ScanRecordActivity extends AppCompatActivity {
             android.R.layout.simple_list_item_single_choice, projects));
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         if (checked >= 0) listView.setItemChecked(checked, true);
+
+        final AlertDialog picker = new AlertDialog.Builder(this)
+            .setTitle(R.string.menu_open_project)
+            .setView(view)
+            .setNeutralButton(R.string.btn_delete, (d, w) -> confirmDeleteProject(currentName))
+            .setNegativeButton(android.R.string.cancel, null)
+            .create();
+
         listView.setOnItemClickListener((parent, v, position, id) -> {
             ScanProject selected = projectManager.load(projects.get(position));
             if (selected == null) {
@@ -99,15 +107,9 @@ public class ScanRecordActivity extends AppCompatActivity {
             project = selected;
             adapter.setRecords(project.records);
             updateHeader();
-            if (picker != null) picker.dismiss();
+            picker.dismiss();
         });
 
-        AlertDialog picker = new AlertDialog.Builder(this)
-            .setTitle(R.string.menu_open_project)
-            .setView(view)
-            .setNeutralButton(R.string.btn_delete, (d, w) -> confirmDeleteProject(currentName))
-            .setNegativeButton(android.R.string.cancel, null)
-            .create();
         picker.show();
     }
 
