@@ -119,15 +119,6 @@
         android:textColor="#9E9E9E"
         android:visibility="gone" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:background="#ECEFF1"
-        android:text="@string/footer_ad"
-        android:textSize="11sp"
-        android:textColor="#78909C" />
+    <com.qrscanner.AdFooterView android:layout_width="match_parent" android:layout_height="wrap_content" />
 
 </LinearLayout>

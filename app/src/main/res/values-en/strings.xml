@@ -61,6 +61,28 @@
     <string name="set_alert_test_vibrate">Test vibration</string>
     <string name="set_alert_test_vibrate_desc">Tap to test</string>
     <string name="vibrate_not_supported">This device has no vibrator, or vibration is not permitted</string>
+    <string name="set_ad_manage">Ad content</string>
+    <string name="set_ad_manage_desc">By time range</string>
+    <string name="ad_manage_title">Ad content</string>
+    <string name="ad_manage_hint">Each row shows during its time range. Set a click-through link if needed. Range 0-24 means all day.</string>
+    <string name="ad_add">Add</string>
+    <string name="ad_edit">Edit</string>
+    <string name="ad_delete">Delete</string>
+    <string name="ad_delete_msg">Delete this ad?\n%1$s</string>
+    <string name="ad_empty">No ad content yet</string>
+    <string name="ad_active_now">Showing now</string>
+    <string name="ad_start_hour">Start hour (0-23)</string>
+    <string name="ad_end_hour">End hour (exclusive, 0-24)</string>
+    <string name="ad_content">Ad text</string>
+    <string name="ad_link">Click-through link (optional)</string>
+    <string name="ad_bad_hour">Start hour must be a number from 0 to 23</string>
+    <string name="ad_bad_hour_end">End hour must be a number from 0 to 24</string>
+    <string name="ad_empty_content">Ad text cannot be empty</string>
+    <string name="ad_remote">Link</string>
+    <string name="ad_remote_title">Ad source link</string>
+    <string name="ad_remote_hint">http://your-server/ad.php</string>
+    <string name="ad_remote_clear">Clear</string>
+    <string name="ad_remote_state">Remote link: %1$s (refreshed every 60s)</string>
 
     <!-- Scan page -->
     <string name="scan_counter">Saved %d</string>

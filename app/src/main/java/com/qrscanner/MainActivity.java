@@ -2,7 +2,11 @@ package com.qrscanner;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -114,9 +118,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateSummary() {
-        ScanProject project = ProjectManager.getInstance(this).getCurrent();
-        tvSummary.setText(getString(R.string.home_summary,
-            project.name, project.records.size()));
+            ScanProject project = ProjectManager.getInstance(this).getCurrent();
+            String name = project.name == null ? "" : project.name;
+            String full = getString(R.string.home_summary, name, project.records.size());
+            SpannableString spannable = new SpannableString(full);
+            int start = full.indexOf(name);
+            if (start >= 0 && name.length() > 0) {
+                spannable.setSpan(new ForegroundColorSpan(Color.RED),
+                    start, start + name.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+            tvSummary.setText(spannable);
     }
 
     // ======================== 菜单动作 ========================
