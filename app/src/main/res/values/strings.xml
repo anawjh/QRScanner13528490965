@@ -90,6 +90,13 @@
     <string name="ad_remote_hint">https://raw.githubusercontent.com/用户名/仓库/分支/ads.json</string>
     <string name="ad_remote_clear">清除</string>
     <string name="ad_remote_state">自动更新：%1$s（每 60 秒读取一次）</string>
+    <string name="ad_source_local">当前使用：本地内容（离线可用，不联网也正常显示）</string>
+    <string name="ad_source_cached">当前使用：上次拉取的内容（%2$s）\n%1$s</string>
+    <string name="ad_source_pending">当前使用：本地内容，尚未成功拉取\n%1$s</string>
+    <string name="ad_source_error">更新失败，继续使用上次的内容：%1$s</string>
+    <string name="ad_just_now">刚刚</string>
+    <string name="ad_minutes_ago">%1$d 分钟前</string>
+    <string name="ad_hours_ago">%1$d 小时前</string>
 
     <!-- 扫码页 -->
     <string name="scan_counter">已录 %d 条</string>

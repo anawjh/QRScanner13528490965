@@ -19,7 +19,7 @@ public final class AdStore {
     private static final String KEY_REMOTE = "remote_url";
     private static final String KEY_REMOTE_CACHE = "remote_cache";
     private static final String KEY_REMOTE_TIME = "remote_time";
-    private static final long REMOTE_TTL_MS = 30 * 60_000L;
+    private static final String KEY_REMOTE_ERROR = "remote_error";
 
     private AdStore() {}
 
@@ -32,7 +32,11 @@ public final class AdStore {
     }
 
     public static void clearRemoteCache(Context context) {
-        prefs(context).edit().remove(KEY_REMOTE_CACHE).remove(KEY_REMOTE_TIME).apply();
+        prefs(context).edit()
+            .remove(KEY_REMOTE_CACHE)
+            .remove(KEY_REMOTE_TIME)
+            .remove(KEY_REMOTE_ERROR)
+            .apply();
     }
 
     static void saveRemote(Context context, List<AdEntry> entries) {
@@ -41,14 +45,33 @@ public final class AdStore {
         prefs(context).edit()
             .putString(KEY_REMOTE_CACHE, arr.toString())
             .putLong(KEY_REMOTE_TIME, System.currentTimeMillis())
+            .remove(KEY_REMOTE_ERROR)
             .apply();
     }
 
+    static void saveRemoteError(Context context, String message) {
+        prefs(context).edit().putString(KEY_REMOTE_ERROR, message == null ? "" : message).apply();
+    }
+
+    public static boolean hasRemoteCache(Context context) {
+        return prefs(context).getString(KEY_REMOTE_CACHE, null) != null;
+    }
+
+    public static String getRemoteError(Context context) {
+        return prefs(context).getString(KEY_REMOTE_ERROR, "");
+    }
+
+    public static long getRemoteTime(Context context) {
+        return prefs(context).getLong(KEY_REMOTE_TIME, 0L);
+    }
+
+    /**
+     * 离线时沿用最近一次拉取到的内容，不做过期丢弃；
+     * 只有真正拉取成功才会被新内容替换。
+     */
     private static List<AdEntry> remoteEntries(Context context) {
         String raw = prefs(context).getString(KEY_REMOTE_CACHE, null);
         if (raw == null) return null;
-        long time = prefs(context).getLong(KEY_REMOTE_TIME, 0L);
-        if (System.currentTimeMillis() - time > REMOTE_TTL_MS) return null;
         List<AdEntry> list = new ArrayList<>();
         try {
             JSONArray arr = new JSONArray(raw);

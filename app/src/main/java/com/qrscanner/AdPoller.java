@@ -42,14 +42,18 @@ public final class AdPoller {
             try {
                 String body = fetch(url);
                 List<AdEntry> parsed = parse(body);
-                if (!parsed.isEmpty()) {
+                if (parsed.isEmpty()) {
+                    AdStore.saveRemoteError(app, "内容为空或格式无法识别");
+                } else {
                     AdStore.saveRemote(app, parsed);
                     MAIN.post(() -> {
                         if (callback != null) callback.onAdLoaded(parsed);
                     });
                 }
             } catch (Exception e) {
-                Log.w(TAG, "poll failed: " + e.getMessage());
+                String msg = e.getMessage() == null ? e.toString() : e.getMessage();
+                Log.w(TAG, "poll failed: " + msg);
+                AdStore.saveRemoteError(app, msg);
             }
         });
         worker.setDaemon(true);

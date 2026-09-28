@@ -128,18 +128,44 @@ public class AdManageActivity extends AppCompatActivity implements AdAdapter.OnA
         entries.addAll(AdStore.all(this));
         adapter.submit(entries);
         tvEmpty.setVisibility(entries.isEmpty() ? View.VISIBLE : View.GONE);
-        String url = AdStore.getRemoteUrl(this);
-        ((android.widget.TextView) findViewById(R.id.tvRemoteState)).setVisibility(
-            url.isEmpty() ? View.GONE : View.VISIBLE);
-        if (!url.isEmpty()) {
-            ((android.widget.TextView) findViewById(R.id.tvRemoteState))
-                .setText(getString(R.string.ad_remote_state, url));
-        }
+        updateStatus();
         AdPoller.pollAsync(this, entries2 -> {
             entries.clear();
             entries.addAll(entries2);
             adapter.submit(entries);
+            updateStatus();
         });
+    }
+
+    private void updateStatus() {
+        TextView tv = findViewById(R.id.tvRemoteState);
+        String url = AdStore.getRemoteUrl(this);
+        if (url.isEmpty()) {
+            tv.setTextColor(0xFF2E7D32);
+            tv.setText(R.string.ad_source_local);
+            return;
+        }
+        if (AdStore.hasRemoteCache(this)) {
+            tv.setTextColor(0xFF6A1B9A);
+            tv.setText(getString(R.string.ad_source_cached, url, ago()));
+        } else {
+            tv.setTextColor(0xFFEF6C00);
+            tv.setText(getString(R.string.ad_source_pending, url));
+        }
+        String err = AdStore.getRemoteError(this);
+        if (!err.isEmpty()) {
+            tv.setTextColor(0xFFC62828);
+            tv.setText(tv.getText() + "\n" + getString(R.string.ad_source_error, err));
+        }
+    }
+
+    private String ago() {
+        long t = AdStore.getRemoteTime(this);
+        if (t <= 0L) return "";
+        long min = (System.currentTimeMillis() - t) / 60000L;
+        if (min < 1L) return getString(R.string.ad_just_now);
+        if (min < 60L) return getString(R.string.ad_minutes_ago, min);
+        return getString(R.string.ad_hours_ago, min / 60L);
     }
 
     private void persist() {

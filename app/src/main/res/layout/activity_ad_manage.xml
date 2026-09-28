@@ -84,9 +84,8 @@
         android:paddingBottom="6dp"
         android:textSize="12sp"
         android:textColor="#6A1B9A"
-        android:maxLines="2"
-        android:ellipsize="middle"
-        android:visibility="gone" />
+        android:maxLines="3"
+        android:ellipsize="middle" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvAds"

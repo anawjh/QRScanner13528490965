@@ -90,6 +90,13 @@ or
     <string name="ad_remote_hint">https://raw.githubusercontent.com/user/repo/branch/ads.json</string>
     <string name="ad_remote_clear">Clear</string>
     <string name="ad_remote_state">Auto update: %1$s (read every 60s)</string>
+    <string name="ad_source_local">In use: local content (works offline)</string>
+    <string name="ad_source_cached">In use: content from last successful fetch (%2$s)\n%1$s</string>
+    <string name="ad_source_pending">In use: local content, nothing fetched yet\n%1$s</string>
+    <string name="ad_source_error">Update failed, still using last content: %1$s</string>
+    <string name="ad_just_now">just now</string>
+    <string name="ad_minutes_ago">%1$d min ago</string>
+    <string name="ad_hours_ago">%1$d h ago</string>
 
     <!-- Scan page -->
     <string name="scan_counter">Saved %d</string>
