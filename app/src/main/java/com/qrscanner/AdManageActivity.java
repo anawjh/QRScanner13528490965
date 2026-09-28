@@ -36,7 +36,57 @@ public class AdManageActivity extends AppCompatActivity implements AdAdapter.OnA
 
         findViewById(R.id.btnAdd).setOnClickListener(v -> promptEntry(-1));
         findViewById(R.id.btnRemote).setOnClickListener(v -> promptRemote());
+        findViewById(R.id.btnImport).setOnClickListener(v -> promptImport());
         refresh();
+    }
+
+    private void promptImport() {
+        EditText input = new EditText(this);
+        input.setHint(R.string.ad_import_hint);
+        input.setSingleLine(false);
+        input.setMinLines(4);
+        input.setText(sampleJson());
+        int pad = (int) (16 * getResources().getDisplayMetrics().density);
+        LinearLayout box = new LinearLayout(this);
+        box.setPadding(pad, pad / 2, pad, 0);
+        box.addView(input);
+
+        final AlertDialog dialog = new AlertDialog.Builder(this)
+            .setTitle(R.string.ad_import)
+            .setView(box)
+            .setPositiveButton(R.string.confirm, null)
+            .setNeutralButton(R.string.ad_restore_builtin, (d, w) -> {
+                AdStore.save(this, AdStore.bundled(this));
+                AdFooterView.refreshAll();
+                refresh();
+            })
+            .setNegativeButton(android.R.string.cancel, null)
+            .create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            List<AdEntry> parsed = AdPoller.parse(input.getText().toString());
+            if (parsed.isEmpty()) {
+                Toast.makeText(this, R.string.ad_import_bad, Toast.LENGTH_LONG).show();
+                return;
+            }
+            AdStore.save(this, parsed);
+            AdFooterView.refreshAll();
+            refresh();
+            dialog.dismiss();
+        });
+    }
+
+    private String sampleJson() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[\n");
+        for (AdEntry e : entries) {
+            sb.append("  {\"start\":").append(e.startHour)
+              .append(",\"end\":").append(e.endHour)
+              .append(",\"text\":\"").append(e.text)
+              .append("\",\"link\":\"").append(e.link).append("\"},\n");
+        }
+        sb.append("  {\"start\":0,\"end\":8,\"text\":\"广告内容\",\"link\":\"https://跳转链接\"}\n]");
+        return sb.toString();
     }
 
     private void promptRemote() {
@@ -48,19 +98,23 @@ public class AdManageActivity extends AppCompatActivity implements AdAdapter.OnA
         box.setPadding(pad, pad / 2, pad, 0);
         box.addView(input);
 
-        new AlertDialog.Builder(this)
+        final AlertDialog dialog = new AlertDialog.Builder(this)
             .setTitle(R.string.ad_remote_title)
             .setView(box)
-            .setPositiveButton(R.string.confirm, (d, w) -> {
-                AdStore.setRemoteUrl(this, input.getText().toString());
-                refresh();
-            })
+            .setPositiveButton(R.string.confirm, null)
             .setNeutralButton(R.string.ad_remote_clear, (d, w) -> {
                 AdStore.setRemoteUrl(this, "");
+                AdStore.clearRemoteCache(this);
                 refresh();
             })
             .setNegativeButton(android.R.string.cancel, null)
-            .show();
+            .create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            AdStore.setRemoteUrl(this, input.getText().toString());
+            dialog.dismiss();
+            refresh();
+        });
     }
 
     @Override
@@ -90,6 +144,7 @@ public class AdManageActivity extends AppCompatActivity implements AdAdapter.OnA
 
     private void persist() {
         AdStore.save(this, new ArrayList<>(entries));
+        AdFooterView.refreshAll();
         refresh();
     }
 
@@ -135,40 +190,43 @@ public class AdManageActivity extends AppCompatActivity implements AdAdapter.OnA
         box.addView(text);
         box.addView(link);
 
-        new AlertDialog.Builder(this)
+        final AlertDialog dialog = new AlertDialog.Builder(this)
             .setTitle(isNew ? R.string.ad_add : R.string.ad_edit)
             .setView(box)
-            .setPositiveButton(R.string.confirm, (d, w) -> {
-                int s = parseHour(start.getText().toString(), -1);
-                int e = parseHour(end.getText().toString(), -1);
-                String t = text.getText().toString().trim();
-                String l = link.getText().toString().trim();
-
-                if (s < 0 || s > 23) {
-                    toast(R.string.ad_bad_hour);
-                    return;
-                }
-                if (e < 0 || e > 24) {
-                    toast(R.string.ad_bad_hour_end);
-                    return;
-                }
-                if (t.isEmpty()) {
-                    toast(R.string.ad_empty_content);
-                    return;
-                }
-                if (isNew) {
-                    entries.add(new AdEntry(s, e, t, l));
-                } else {
-                    AdEntry old = entries.get(position);
-                    old.startHour = s;
-                    old.endHour = e;
-                    old.text = t;
-                    old.link = l;
-                }
-                persist();
-            })
+            .setPositiveButton(R.string.confirm, null)
             .setNegativeButton(android.R.string.cancel, null)
-            .show();
+            .create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            int s = parseHour(start.getText().toString(), -1);
+            int e = parseHour(end.getText().toString(), -1);
+            String t = text.getText().toString().trim();
+            String l = link.getText().toString().trim();
+
+            if (s < 0 || s > 23) {
+                toast(R.string.ad_bad_hour);
+                return;
+            }
+            if (e < 0 || e > 24) {
+                toast(R.string.ad_bad_hour_end);
+                return;
+            }
+            if (t.isEmpty()) {
+                toast(R.string.ad_empty_content);
+                return;
+            }
+            if (isNew) {
+                entries.add(new AdEntry(s, e, t, l));
+            } else {
+                AdEntry old = entries.get(position);
+                old.startHour = s;
+                old.endHour = e;
+                old.text = t;
+                old.link = l;
+            }
+            persist();
+            dialog.dismiss();
+        });
     }
 
     private EditText input(String hint) {

@@ -64,7 +64,14 @@
     <string name="set_ad_manage">广告内容</string>
     <string name="set_ad_manage_desc">按时间段设置</string>
     <string name="ad_manage_title">广告内容</string>
-    <string name="ad_manage_hint">按「时间段」匹配当前小时显示哪条广告内容，可设置点击跳转链接。留空时间段 0-24 表示全天生效。</string>
+    <string name="ad_manage_hint">广告内容已随安装包内置，不联网也能正常显示。可直接新增/编辑/删除，或用「导入」批量粘贴。想让 App 自动拉取最新内容，可选填你自己仓库里 ads.json 的文件地址。</string>
+    <string name="ad_import">导入</string>
+    <string name="ad_import_hint">粘贴广告内容，支持：
+0-8|广告内容|https://跳转链接
+或
+[{"start":0,"end":8,"text":"广告内容","link":"https://跳转链接"}]</string>
+    <string name="ad_import_bad">没有解析到广告内容，请检查格式</string>
+    <string name="ad_restore_builtin">恢复内置</string>
     <string name="ad_add">新增</string>
     <string name="ad_edit">编辑</string>
     <string name="ad_delete">删除</string>
@@ -78,11 +85,11 @@
     <string name="ad_bad_hour">开始小时必须是 0-23 的数字</string>
     <string name="ad_bad_hour_end">结束小时必须是 0-24 的数字</string>
     <string name="ad_empty_content">广告内容不能为空</string>
-    <string name="ad_remote">接口</string>
-    <string name="ad_remote_title">广告内容接口地址</string>
-    <string name="ad_remote_hint">http://你的服务器/ad.php</string>
+    <string name="ad_remote">文件地址</string>
+    <string name="ad_remote_title">自己仓库的 ads.json 地址（可选）</string>
+    <string name="ad_remote_hint">https://raw.githubusercontent.com/用户名/仓库/分支/ads.json</string>
     <string name="ad_remote_clear">清除</string>
-    <string name="ad_remote_state">接口：%1$s（每 60 秒刷新一次）</string>
+    <string name="ad_remote_state">自动更新：%1$s（每 60 秒读取一次）</string>
 
     <!-- 扫码页 -->
     <string name="scan_counter">已录 %d 条</string>

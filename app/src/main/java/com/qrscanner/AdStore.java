@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -27,6 +29,10 @@ public final class AdStore {
 
     public static void setRemoteUrl(Context context, String url) {
         prefs(context).edit().putString(KEY_REMOTE, url == null ? "" : url.trim()).apply();
+    }
+
+    public static void clearRemoteCache(Context context) {
+        prefs(context).edit().remove(KEY_REMOTE_CACHE).remove(KEY_REMOTE_TIME).apply();
     }
 
     static void saveRemote(Context context, List<AdEntry> entries) {
@@ -73,7 +79,26 @@ public final class AdStore {
             } catch (Exception ignored) {
             }
         }
+        if (list.isEmpty()) list.addAll(bundled(context));
         if (list.isEmpty()) list.add(defaultEntry(context));
+        return list;
+    }
+
+    /**
+     * 广告内容随安装包内置，首次启动时使用，完全离线，不依赖任何服务器。
+     */
+    public static List<AdEntry> bundled(Context context) {
+        List<AdEntry> list = new ArrayList<>();
+        try {
+            InputStream in = context.getAssets().open("ads.json");
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buf = new byte[4096];
+            int n;
+            while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+            in.close();
+            list.addAll(AdPoller.parse(out.toString("UTF-8")));
+        } catch (Exception ignored) {
+        }
         return list;
     }
 

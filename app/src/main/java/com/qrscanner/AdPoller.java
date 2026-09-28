@@ -84,9 +84,10 @@ public final class AdPoller {
     }
 
     /**
-     * 支持两种格式：
+     * 支持三种格式：
      * 1) JSON 数组：[{"start":0,"end":8,"text":"...","link":"https://..."}]
-     * 2) 纯文本，每行一条：0-8|广告内容|https://跳转链接
+     * 2) JSON 对象：{"entries":[...]}，即仓库里 ads.json 的格式
+     * 3) 纯文本，每行一条：0-8|广告内容|https://跳转链接
      */
     static List<AdEntry> parse(String body) {
         List<AdEntry> out = new ArrayList<>();
@@ -94,19 +95,19 @@ public final class AdPoller {
         String trimmed = body.trim();
         if (trimmed.isEmpty()) return out;
 
+        if (trimmed.startsWith("{")) {
+            try {
+                JSONObject root = new JSONObject(trimmed);
+                JSONArray arr = root.optJSONArray("entries");
+                if (arr == null) arr = root.optJSONArray("data");
+                if (arr != null) return fromJson(arr);
+            } catch (Exception ignored) {
+            }
+        }
+
         if (trimmed.startsWith("[")) {
             try {
-                JSONArray arr = new JSONArray(trimmed);
-                for (int i = 0; i < arr.length(); i++) {
-                    JSONObject o = arr.optJSONObject(i);
-                    if (o == null) continue;
-                    out.add(new AdEntry(
-                        o.optInt("start", 0),
-                        o.optInt("end", 24),
-                        o.optString("text", ""),
-                        o.optString("link", "")));
-                }
-                return out;
+                return fromJson(new JSONArray(trimmed));
             } catch (Exception ignored) {
             }
         }
@@ -128,6 +129,22 @@ public final class AdPoller {
     }
 
     /** 解析 "0-8"、"0:00-8:00"、"8"（单值当作到当天结束）。 */
+    private static List<AdEntry> fromJson(JSONArray arr) {
+        List<AdEntry> out = new ArrayList<>();
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject o = arr.optJSONObject(i);
+            if (o == null) continue;
+            String text = o.optString("text", o.optString("content", ""));
+            if (text.isEmpty()) continue;
+            out.add(new AdEntry(
+                o.optInt("start", 0),
+                o.optInt("end", 24),
+                text,
+                o.optString("link", o.optString("url", ""))));
+        }
+        return out;
+    }
+
     static int[] parseRange(String raw) {
         try {
             String s = raw.trim();

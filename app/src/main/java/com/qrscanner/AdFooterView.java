@@ -73,6 +73,7 @@ public class AdFooterView extends FrameLayout {
         tvAdText = findViewById(R.id.tvAdText);
         gradient = new GradientDrawable();
         setBackground(gradient);
+        setOnClickListener(v -> performClick());
         applyCurrent();
     }
 
@@ -176,12 +177,14 @@ public class AdFooterView extends FrameLayout {
 
     @Override
     public boolean performClick() {
-        if (currentLink.isEmpty()) return super.performClick();
+        if (currentLink.isEmpty()) return true;
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(currentLink));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(currentLink));
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             getContext().startActivity(intent);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            Toast.makeText(getContext(),
+                e.getMessage() == null ? currentLink : e.getMessage(), Toast.LENGTH_LONG).show();
         }
         return true;
     }

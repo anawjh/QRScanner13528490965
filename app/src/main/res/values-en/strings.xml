@@ -64,7 +64,14 @@
     <string name="set_ad_manage">Ad content</string>
     <string name="set_ad_manage_desc">By time range</string>
     <string name="ad_manage_title">Ad content</string>
-    <string name="ad_manage_hint">Each row shows during its time range. Set a click-through link if needed. Range 0-24 means all day.</string>
+    <string name="ad_manage_hint">Ad content is bundled in the app and works offline. Add/edit/delete directly, or use Import to paste in bulk. Optionally set the ads.json URL in your own repository for automatic updates.</string>
+    <string name="ad_import">Import</string>
+    <string name="ad_import_hint">Paste ad content, either:
+0-8|ad text|https://link
+or
+[{"start":0,"end":8,"text":"ad text","link":"https://link"}]</string>
+    <string name="ad_import_bad">No ad content parsed, please check the format</string>
+    <string name="ad_restore_builtin">Restore built-in</string>
     <string name="ad_add">Add</string>
     <string name="ad_edit">Edit</string>
     <string name="ad_delete">Delete</string>
@@ -78,11 +85,11 @@
     <string name="ad_bad_hour">Start hour must be a number from 0 to 23</string>
     <string name="ad_bad_hour_end">End hour must be a number from 0 to 24</string>
     <string name="ad_empty_content">Ad text cannot be empty</string>
-    <string name="ad_remote">Link</string>
-    <string name="ad_remote_title">Ad source link</string>
-    <string name="ad_remote_hint">http://your-server/ad.php</string>
+    <string name="ad_remote">File URL</string>
+    <string name="ad_remote_title">ads.json URL in your own repository (optional)</string>
+    <string name="ad_remote_hint">https://raw.githubusercontent.com/user/repo/branch/ads.json</string>
     <string name="ad_remote_clear">Clear</string>
-    <string name="ad_remote_state">Remote link: %1$s (refreshed every 60s)</string>
+    <string name="ad_remote_state">Auto update: %1$s (read every 60s)</string>
 
     <!-- Scan page -->
     <string name="scan_counter">Saved %d</string>
