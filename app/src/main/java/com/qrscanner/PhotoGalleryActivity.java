@@ -68,7 +68,7 @@ public class PhotoGalleryActivity extends AppCompatActivity
         tvEmpty.setVisibility(files.isEmpty() ? View.VISIBLE : View.GONE);
         tvEmpty.setText(R.string.photo_empty);
         btnDeleteAll.setText(files.isEmpty()
-            ? R.string.photo_delete_all
+            ? getString(R.string.photo_delete_all)
             : getString(R.string.photo_delete_all_count, files.size()));
         btnDeleteAll.setEnabled(!files.isEmpty());
         btnDeleteAll.setAlpha(files.isEmpty() ? 0.5f : 1f);
