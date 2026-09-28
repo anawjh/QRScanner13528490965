@@ -1,4 +1,4 @@
-﻿package com.qrscanner;
+package com.qrscanner;
 
 import android.content.Context;
 import android.content.SharedPreferences;
