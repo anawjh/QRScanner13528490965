@@ -20,6 +20,8 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+
 public class AdFooterView extends FrameLayout {
 
     private static final long REFRESH_MS = 60_000L;
@@ -75,6 +77,7 @@ public class AdFooterView extends FrameLayout {
         gradient = new GradientDrawable();
         setBackground(gradient);
         setOnClickListener(v -> performClick());
+        setOnLongClickListener(v -> { showSourceDialog(); return true; });
         applyCurrent();
     }
 
@@ -176,9 +179,58 @@ public class AdFooterView extends FrameLayout {
 
     // ======================== 点击跳转 ========================
 
+    /**
+     * 长按广告栏查看当前内容来源与最近一次拉取结果，并可立即手动拉取一次。
+     * 不占用菜单，便于确认联网更新是否真的生效。
+     */
+    private void showSourceDialog() {
+        Context ctx = getContext();
+        StringBuilder sb = new StringBuilder();
+        boolean cached = AdStore.hasRemoteCache(ctx);
+        sb.append(cached ? ctx.getString(R.string.ad_diag_cached) : ctx.getString(R.string.ad_diag_builtin));
+        sb.append('\n').append(ctx.getString(R.string.ad_diag_url, AdStore.getRemoteUrl(ctx)));
+
+        long t = AdStore.getRemoteTime(ctx);
+        if (t > 0L) {
+            long min = (System.currentTimeMillis() - t) / 60000L;
+            sb.append('\n').append(min < 1L
+                ? ctx.getString(R.string.ad_just_now)
+                : ctx.getString(R.string.ad_minutes_ago, min));
+        }
+
+        String err = AdStore.getRemoteError(ctx);
+        if (!err.isEmpty()) {
+            sb.append('\n').append(ctx.getString(R.string.ad_diag_error, err));
+        }
+        if (currentLink.isEmpty()) {
+            sb.append('\n').append(ctx.getString(R.string.ad_diag_nolink));
+        }
+
+        new AlertDialog.Builder(ctx)
+            .setTitle(R.string.ad_diag_title)
+            .setMessage(sb.toString())
+            .setPositiveButton(R.string.ad_diag_fetch_now, (d, w) ->
+                AdPoller.pollAsync(ctx, entries -> {
+                    refreshAll();
+                    showResult(ctx, entries);
+                }))
+            .setNegativeButton(android.R.string.cancel, null)
+            .show();
+    }
+
+    private void showResult(Context ctx, java.util.List<AdEntry> entries) {
+        Toast.makeText(ctx,
+            entries.isEmpty() ? ctx.getString(R.string.ad_diag_failed)
+                              : ctx.getString(R.string.ad_diag_ok, entries.size()),
+            Toast.LENGTH_LONG).show();
+    }
+
     @Override
     public boolean performClick() {
-        if (currentLink.isEmpty()) return true;
+        if (currentLink.isEmpty()) {
+            Toast.makeText(getContext(), R.string.ad_no_link, Toast.LENGTH_SHORT).show();
+            return true;
+        }
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(currentLink));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try {

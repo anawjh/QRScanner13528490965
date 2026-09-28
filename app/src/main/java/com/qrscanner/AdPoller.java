@@ -39,22 +39,23 @@ public final class AdPoller {
         if (worker != null && worker.isAlive()) return;
 
         worker = new Thread(() -> {
+            final List<AdEntry> result = new ArrayList<>();
             try {
                 String body = fetch(url);
-                List<AdEntry> parsed = parse(body);
-                if (parsed.isEmpty()) {
+                result.addAll(parse(body));
+                if (result.isEmpty()) {
                     AdStore.saveRemoteError(app, "内容为空或格式无法识别");
                 } else {
-                    AdStore.saveRemote(app, parsed);
-                    MAIN.post(() -> {
-                        if (callback != null) callback.onAdLoaded(parsed);
-                    });
+                    AdStore.saveRemote(app, result);
                 }
             } catch (Exception e) {
                 String msg = e.getMessage() == null ? e.toString() : e.getMessage();
                 Log.w(TAG, "poll failed: " + msg);
                 AdStore.saveRemoteError(app, msg);
             }
+            MAIN.post(() -> {
+                if (callback != null) callback.onAdLoaded(result);
+            });
         });
         worker.setDaemon(true);
         worker.start();
