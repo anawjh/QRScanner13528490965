@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F7FA">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="#1565C0"
+        android:padding="14dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/blacklist_title"
+            android:textColor="#FFFFFF"
+            android:textSize="19sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:minWidth="0dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:text="@string/close"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#0D47A1"
+            android:stateListAnimator="@null" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvCounter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:textSize="13sp"
+        android:textColor="#616161" />
+
+    <EditText
+        android:id="@+id/etBlacklist"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_margin="10dp"
+        android:gravity="top|start"
+        android:background="#FFFFFF"
+        android:inputType="textMultiLine"
+        android:textSize="14sp"
+        android:padding="10dp"
+        android:hint="@string/blacklist_hint" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <Button
+            android:id="@+id/btnScan"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="5dp"
+            android:text="@string/blacklist_scan_add"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#1976D2"
+            android:stateListAnimator="@null" />
+
+        <Button
+            android:id="@+id/btnClear"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="0.6"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:text="@string/btn_clear"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#F57C00"
+            android:stateListAnimator="@null" />
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:layout_marginStart="5dp"
+            android:text="@string/save_settings"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#2E7D32"
+            android:stateListAnimator="@null" />
+    </LinearLayout>
+
+</LinearLayout>

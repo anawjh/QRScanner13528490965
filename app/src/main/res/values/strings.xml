@@ -1,24 +1,176 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">批量扫码工具</string>
-    <string name="menu_new_project">\uD83D\uDCC1 新建项目</string>
-    <string name="menu_open_project">\uD83D\uDCC2 打开项目</string>
-    <string name="menu_flash_settings">\uD83D\uDCA1 闪光灯设置</string>
-    <string name="menu_contact">\uD83D\uDCDE 联系开发者</string>
-    <string name="menu_switch_lang">\uD83C\uDF10 切换英文</string>
-    <string name="menu_continuous_on">\u2705 连续扫码：已开启</string>
-    <string name="menu_continuous_off">\u23F8 连续扫码：已关闭</string>
+
+    <!-- 首页 -->
+    <string name="home_summary">当前项目：%1$s（%2$d 条）</string>
+    <string name="menu_alpha">字母开头</string>
+    <string name="menu_alpha_sub">仅录入字母开头的码</string>
+    <string name="menu_digit">数字开头</string>
+    <string name="menu_digit_sub">仅录入数字开头的码</string>
+    <string name="menu_format">指定格式</string>
+    <string name="menu_format_sub">13 种格式任选</string>
+    <string name="menu_length">指定长度</string>
+    <string name="menu_length_sub">固定内容长度</string>
+    <string name="menu_gen_barcode">生成条形码</string>
+    <string name="menu_gen_barcode_batch">批量生成条形码</string>
+    <string name="menu_gen_qr">生成二维码</string>
+    <string name="menu_gen_qr_batch">批量生成二维码</string>
+    <string name="menu_gen_sub">单个生成并导出</string>
+    <string name="menu_gen_batch_sub">多行一次生成</string>
+    <string name="menu_scan_records">扫描记录</string>
+    <string name="menu_gen_records">生成记录</string>
+    <string name="menu_records_sub">查看与导出</string>
+    <string name="state_on">已开启</string>
+    <string name="state_off">已关闭</string>
+    <string name="state_all">全部格式</string>
+    <string name="state_selected">已选 %d 种</string>
+    <string name="state_length">固定 %d 位</string>
+    <string name="filter_alpha_hint">只录入首字符为字母的条码，其余自动忽略。</string>
+    <string name="filter_digit_hint">只录入首字符为数字的条码，其余自动忽略。</string>
+    <string name="filter_on">开启并扫码</string>
+    <string name="filter_off">关闭</string>
+    <string name="filter_start">开始扫码</string>
+    <string name="select_all">全选格式</string>
+
+    <!-- 扫码页 -->
+    <string name="scan_counter">已录 %d 条</string>
+    <string name="scan_ready">准备中…</string>
+    <string name="scan_next_in">%.1f 秒后继续</string>
+    <string name="scan_stopped">连续扫码已关闭</string>
+    <string name="scan_filtered">已过滤 %d 条（不符合条件）</string>
+    <string name="flash_toggle">闪光灯</string>
+    <string name="close">关闭</string>
+    <string name="confirm">确定</string>
+
+    <!-- 拦截名单 -->
+    <string name="blacklist_hit_title">命中拦截名单</string>
+    <string name="blacklist_hit_banner">⚠ 拦截：%s</string>
+    <string name="blacklist_action_skip">提示 + 不录入</string>
+    <string name="blacklist_action_keep">提示 + 录入并标红</string>
+    <string name="blacklist_remember">记住我的选择</string>
+    <string name="blacklist_title">拦截名单</string>
+    <string name="blacklist_counter">共 %1$d 条（上限 %2$d 条）</string>
+    <string name="blacklist_hint">每行一个内容，扫码或手工输入后保存</string>
+    <string name="blacklist_scan_add">扫码录入</string>
+    <string name="blacklist_scan_prompt">将内容放入框内即可录入名单</string>
+    <string name="blacklist_saved">名单已保存：%d 条</string>
+    <string name="blacklist_full">名单已满 %d 条</string>
+    <string name="blacklist_exists">名单中已存在该内容</string>
+    <string name="blacklist_too_many">超过上限，请删除部分内容</string>
+
+    <!-- 设置 -->
+    <string name="settings_title">设置</string>
+    <string name="section_scan">扫码</string>
+    <string name="section_filter">过滤</string>
+    <string name="set_alert_mode">提示方式</string>
+    <string name="set_interval">扫码间隔</string>
+    <string name="set_blacklist">拦截名单</string>
+    <string name="set_blacklist_value">%d 条</string>
+    <string name="set_save_photo">自动保存扫码照片</string>
+    <string name="set_continuous">连续扫码</string>
+    <string name="set_flash">闪光灯设置</string>
+    <string name="set_filter_alpha">仅字母开头</string>
+    <string name="set_filter_digit">仅数字开头</string>
+    <string name="set_filter_length">固定长度</string>
+    <string name="set_filter_length_value">%d 位</string>
+    <string name="set_filter_length_hint">填写内容长度，0 表示不限制</string>
+    <string name="set_not_set">未设置</string>
+    <string name="set_enabled">已开启</string>
+    <string name="set_disabled">已关闭</string>
+    <string name="alert_sound_vibrate">提示音 + 震动</string>
+    <string name="alert_sound">仅提示音</string>
+    <string name="alert_vibrate">仅震动</string>
+    <string name="alert_none">无</string>
+    <string name="seconds_value">%d 秒</string>
+    <string name="millis_value">%d 毫秒</string>
+    <string name="reset">重置</string>
+
+    <!-- 生成 -->
+    <string name="generator_qr_title">生成二维码</string>
+    <string name="generator_barcode_title">生成条形码</string>
+    <string name="generator_qr_batch_title">批量生成二维码</string>
+    <string name="generator_barcode_batch_title">批量生成条形码</string>
+    <string name="label_format">格式</string>
+    <string name="label_qr">二维码</string>
+    <string name="label_barcode">条形码</string>
+    <string name="gen_content_hint">输入内容</string>
+    <string name="gen_preview">预览</string>
+    <string name="gen_add">加入清单</string>
+    <string name="gen_export">导出 Excel</string>
+    <string name="gen_list_count">清单共 %d 条</string>
+    <string name="gen_added">已加入清单</string>
+    <string name="gen_already_added">清单中已存在该内容</string>
+    <string name="gen_clear_title">清空清单</string>
+    <string name="gen_clear_message">确认清空清单中 %d 条内容？</string>
+    <string name="gen_err_empty">内容不能为空</string>
+    <string name="gen_err_ean8">EAN-8 必须是 8 位数字</string>
+    <string name="gen_err_ean13">EAN-13 必须是 13 位数字</string>
+    <string name="gen_err_upca">UPC-A 必须是 12 位数字</string>
+    <string name="gen_err_upce">UPC-E 必须是 8 位数字</string>
+    <string name="gen_err_itf">ITF 必须是偶数位数字且不少于 2 位</string>
+    <string name="gen_err_code39">CODE-39 仅支持数字、大写字母及 - . \$ / + % 空格</string>
+    <string name="batch_content_hint">每行一个内容，最多 400 条可内嵌条码图片</string>
+    <string name="batch_valid_count">有效内容 %d 条</string>
+    <string name="batch_sample">示例内容</string>
+    <string name="batch_saved">已保存生成记录</string>
+    <string name="batch_invalid_title">内容不符合格式要求</string>
+    <string name="batch_invalid_message">第 %1$d 行「%2$s」：%3$s</string>
+
+    <!-- 生成记录 -->
+    <string name="generate_records_title">生成记录</string>
+    <string name="empty_generate_records">暂无生成记录</string>
+    <string name="gen_record_title">%1$s · %2$s</string>
+    <string name="gen_record_detail">%1$d 条 · %2$s · %3$s</string>
+    <string name="gen_delete_title">删除记录</string>
+    <string name="gen_delete_message">删除这条生成记录？</string>
+    <string name="gen_export_again">再次导出</string>
+    <string name="btn_delete">删除</string>
+
+    <!-- 扫描记录 -->
+    <string name="records_header">%1$s（%2$d 条）</string>
+    <string name="empty_records">暂无扫码记录</string>
+    <string name="records_open_failed">打开项目失败</string>
+    <string name="records_delete_project">删除项目</string>
+    <string name="records_new_hint">项目名称（留空自动生成）</string>
+    <string name="records_blocked_prefix">⚠ 拦截 · %s</string>
+    <string name="records_remark_prefix">备注：%s</string>
+    <string name="export_records_excel">导出 Excel</string>
+
+    <!-- 格式 -->
+    <string name="format_qr_code">QR Code 二维码</string>
+    <string name="format_code_39">Code 39</string>
+    <string name="format_code_93">Code 93</string>
+    <string name="format_code_128">Code 128</string>
+    <string name="format_ean_8">EAN-8</string>
+    <string name="format_ean_13">EAN-13</string>
+    <string name="format_aztec">Aztec</string>
+    <string name="format_codabar">Codabar</string>
+    <string name="format_itf">ITF</string>
+    <string name="format_upc_a">UPC-A</string>
+    <string name="format_upc_e">UPC-E</string>
+    <string name="format_data_matrix">Data Matrix</string>
+    <string name="format_pdf_417">PDF417</string>
+    <string name="format_unknown">未知</string>
+
+    <!-- 通用 / 旧版保留 -->
+    <string name="menu_new_project">新建项目</string>
+    <string name="menu_open_project">打开项目</string>
+    <string name="menu_flash_settings">闪光灯设置</string>
+    <string name="menu_contact">联系开发者</string>
+    <string name="menu_switch_lang">切换英文</string>
+    <string name="menu_continuous_on">连续扫码：已开启</string>
+    <string name="menu_continuous_off">连续扫码：已关闭</string>
     <string name="continuous_on">连续扫码已开启</string>
     <string name="continuous_off">连续扫码已关闭</string>
-    <string name="scan_mode_camera">\uD83D\uDCF7 开始扫码</string>
-    <string name="mode_camera">\uD83D\uDCF7 摄像头扫码模式</string>
-    <string name="btn_export">\uD83D\uDCCA 导出Excel</string>
-    <string name="btn_clear">X</string>
+    <string name="btn_export">导出 Excel</string>
+    <string name="btn_clear">清空</string>
+    <string name="save_settings">保存</string>
     <string name="list_title">扫码记录</string>
-    <string name="empty_hint">暂无扫码记录\n点击「开始扫码」开始扫描</string>
+    <string name="empty_hint">暂无扫码记录</string>
     <string name="contact_title">联系开发者</string>
     <string name="contact_develop">开发更多，请联系13528490965</string>
-    <string name="flash_settings_title">\uD83D\uDCA1 闪光灯设置</string>
+    <string name="flash_settings_title">闪光灯设置</string>
     <string name="flash_mode_label">闪光灯模式</string>
     <string name="flash_always_on">常灯（常亮）</string>
     <string name="flash_always_on_desc">打开扫码页面后闪光灯一直亮，直到关闭扫码页面才灭</string>
@@ -26,36 +178,30 @@
     <string name="flash_on_scan_desc">打开扫码页面后闪光灯亮，扫码成功后自动灭灯</string>
     <string name="flash_off">关闭</string>
     <string name="flash_off_desc">扫码时不开闪光灯</string>
-    <string name="save_settings">保存设置</string>
     <string name="hint_scan">将二维码放入框内，即可自动扫描</string>
     <string name="hint_scan_barcode">将条形码放入框内，即可自动扫描</string>
     <string name="hint_scan_all">将二维码或条形码放入框内，即可自动扫描</string>
-    <string name="menu_scan_mode_title">扫码格式</string>
-    <string name="menu_scan_mode_all">\uD83D\uDD0D 扫码格式：二维码+条码</string>
-    <string name="menu_scan_mode_qr">\uD83D\uDD0D 扫码格式：仅二维码</string>
-    <string name="menu_scan_mode_barcode">\uD83D\uDD0D 扫码格式：仅条码</string>
     <string name="scan_mode_all">二维码 + 条形码</string>
     <string name="scan_mode_qr">仅二维码</string>
-    <string name="scan_mode_barcode">仅条形码（Code128/EAN/UPC/ITF等）</string>
+    <string name="scan_mode_barcode">仅条形码</string>
     <string name="scan_count">已扫: %d 条</string>
-    <string name="hint_back">\u2190 返回</string>
-    <string name="flash_status_on">闪光灯：常亮</string>
-    <string name="flash_status_scan">闪光灯：扫码时亮</string>
-    <string name="camera_permission_denied">需要相机权限才能扫码</string>
     <string name="scanned_count">已扫: %d 条</string>
-    <string name="delete_title">删除</string>
-    <string name="delete_confirm">删除这条记录？</string>
-    <string name="edit_remark_title">编辑备注</string>
     <string name="no_records">暂无记录</string>
     <string name="clear_all_title">清空全部</string>
     <string name="clear_all_msg">确认清空全部 %d 条记录？</string>
+    <string name="delete_title">删除</string>
+    <string name="delete_confirm">删除这条记录？</string>
+    <string name="edit_remark_title">编辑备注</string>
     <string name="export_ok_title">导出成功</string>
-    <string name="share">分享</string>
     <string name="export_failed">导出失败: %s</string>
-    <string name="menu_sound_settings">\uD83D\uDD0A 声音设置</string>
-    <string name="voice_prompt">\uD83D\uDD0A 语音提示</string>
-    <string name="sound_off">\uD83D\uDD07 关闭声音</string>
-    <string name="sound_hint">扫码成功后语音播报</string>
+    <string name="export_working">正在生成 Excel…</string>
+    <string name="export_image_confirm_title">条数较多</string>
+    <string name="export_image_confirm_message">共 %1$d 条，超过 %2$d 条后不再嵌入条码图片，仅导出内容。是否继续？</string>
+    <string name="share">分享</string>
+    <string name="camera_permission_denied">需要相机权限才能扫码</string>
+
     <string name="voice_scan_success_zh" translatable="false">扫码成功</string>
     <string name="voice_scan_success_en" translatable="false">Scan successful</string>
+    <string name="voice_blocked_zh" translatable="false">命中拦截名单</string>
+    <string name="voice_blocked_en" translatable="false">Blacklisted item detected</string>
 </resources>

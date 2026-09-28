@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F7FA">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="#1565C0"
+        android:padding="14dp">
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/generator_qr_title"
+            android:textColor="#FFFFFF"
+            android:textSize="19sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:minWidth="0dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:text="@string/close"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#0D47A1"
+            android:stateListAnimator="@null" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_format"
+            android:textSize="14sp"
+            android:textColor="#424242" />
+
+        <Spinner
+            android:id="@+id/spinnerFormat"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:background="#FFFFFF"
+            android:paddingStart="6dp" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/etContent"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:background="#FFFFFF"
+        android:inputType="text"
+        android:maxLines="1"
+        android:textSize="15sp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:hint="@string/gen_content_hint" />
+
+    <ImageView
+        android:id="@+id/imagePreview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_margin="12dp"
+        android:background="#FFFFFF"
+        android:padding="12dp"
+        android:contentDescription="@string/gen_preview" />
+
+    <TextView
+        android:id="@+id/tvListCount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="6dp"
+        android:textSize="14sp"
+        android:textColor="#1565C0" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <Button
+            android:id="@+id/btnAdd"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="5dp"
+            android:text="@string/gen_add"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#1976D2"
+            android:stateListAnimator="@null" />
+
+        <Button
+            android:id="@+id/btnClearList"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="0.7"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:text="@string/btn_clear"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#F57C00"
+            android:stateListAnimator="@null" />
+
+        <Button
+            android:id="@+id/btnExport"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:layout_marginStart="5dp"
+            android:text="@string/gen_export"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#2E7D32"
+            android:stateListAnimator="@null" />
+    </LinearLayout>
+
+</LinearLayout>

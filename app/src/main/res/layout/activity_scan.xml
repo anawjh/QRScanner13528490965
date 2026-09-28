@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <com.journeyapps.barcodescanner.DecoratedBarcodeView
+        android:id="@+id/barcodeScanner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:zxing_preview_scaling_strategy="centerCrop"
+        app:zxing_use_texture_view="false"
+        app:zxing_flashlight_on="false" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="#99000000"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/tvCounter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btnFlash"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_lock_silent_mode"
+            android:tint="#FFFFFF"
+            android:contentDescription="@string/flash_toggle" />
+
+        <Button
+            android:id="@+id/btnClose"
+            android:layout_width="wrap_content"
+            android:layout_height="42dp"
+            android:layout_marginStart="6dp"
+            android:minWidth="0dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:text="@string/close"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#C62828"
+            android:stateListAnimator="@null" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvBanner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="96dp"
+        android:background="#DDB71C1C"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:padding="10dp"
+        android:gravity="center"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#88000000"
+        android:textColor="#FFFFFF"
+        android:textSize="13sp"
+        android:gravity="center"
+        android:padding="10dp" />
+
+</FrameLayout>

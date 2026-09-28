@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_column_weight="1"
+    android:layout_margin="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="3dp"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tvIcon"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:background="@drawable/circle_bg"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:text="A" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:textColor="#212121"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:text="菜单" />
+
+        <TextView
+            android:id="@+id/tvSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:gravity="center"
+            android:textColor="#9E9E9E"
+            android:textSize="11sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="说明" />
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

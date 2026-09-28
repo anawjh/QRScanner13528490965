@@ -45,6 +45,9 @@ public class ScanProject {
                 ro.put("content", r.getContent());
                 ro.put("time", r.getTime());
                 ro.put("remark", r.getRemark());
+                ro.put("format", r.getFormat());
+                ro.put("blocked", r.isBlocked());
+                ro.put("imagePath", r.getImagePath());
                 arr.put(ro);
             }
             obj.put("records", arr);
@@ -68,7 +71,10 @@ public class ScanProject {
                             ro.optInt("seq"),
                             ro.optString("content", ""),
                             ro.optString("time", ""),
-                            ro.optString("remark", "")
+                            ro.optString("remark", ""),
+                            ro.optString("format", ""),
+                            ro.optBoolean("blocked", false),
+                            ro.optString("imagePath", "")
                     ));
                 }
             }

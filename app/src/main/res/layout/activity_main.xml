@@ -1,31 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="#F5F7FA">
 
-    <!-- 顶部标题栏 -->
-    <RelativeLayout
-        android:id="@+id/toolbar"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:background="#1565C0"
         android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:elevation="4dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:paddingEnd="6dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
+            android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
@@ -37,155 +31,46 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tvCounter"
+                android:id="@+id/tvSummary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
+                android:layout_marginTop="2dp"
                 android:textColor="#BBDEFB"
-                android:textSize="13sp"
-                android:layout_marginTop="2dp" />
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnMenu"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            style="?android:attr/borderlessButtonStyle"
-            android:text="⋮"
-            android:textSize="24sp"
-            android:textColor="#FFFFFF"
-            android:contentDescription="菜单" />
-    </RelativeLayout>
+        <ImageButton
+            android:id="@+id/btnLang"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_set_as_tab"
+            android:tint="#FFFFFF"
+            android:contentDescription="@string/menu_switch_lang" />
 
-    <!-- 项目名 -->
-    <TextView
-        android:id="@+id/tvProjectName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="11sp"
-        android:textColor="#E1BEE7"
-        android:background="#1565C0"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="0dp"
-        android:paddingBottom="6dp"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- 按钮区域 -->
-    <LinearLayout
-        android:id="@+id/btnLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="12dp"
-        android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/tvProjectName"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <Button
-            android:id="@+id/btnScan"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_weight="1"
-            android:layout_marginEnd="6dp"
-            android:text="@string/scan_mode_camera"
-            android:textSize="15sp"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#1976D2"
-            android:stateListAnimator="@null" />
-
-        <Button
-            android:id="@+id/btnExport"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_weight="1"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp"
-            android:text="@string/btn_export"
-            android:textSize="15sp"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#2E7D32"
-            android:enabled="false"
-            android:stateListAnimator="@null" />
-
-        <Button
-            android:id="@+id/btnClear"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_weight="0.7"
-            android:layout_marginStart="6dp"
-            android:text="@string/btn_clear"
-            android:textSize="18sp"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#C62828"
-            android:enabled="false"
-            android:stateListAnimator="@null" />
+        <ImageButton
+            android:id="@+id/btnSettings"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_manage"
+            android:tint="#FFFFFF"
+            android:contentDescription="@string/settings_title" />
     </LinearLayout>
 
-    <!-- 列表标题 -->
-    <TextView
-        android:id="@+id/tvListTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/list_title"
-        android:textSize="13sp"
-        android:textColor="#757575"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="6dp"
-        app:layout_constraintTop_toBottomOf="@id/btnLayout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- 空状态 -->
-    <TextView
-        android:id="@+id/tvEmpty"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/empty_hint"
-        android:textSize="15sp"
-        android:textColor="#BDBDBD"
-        android:gravity="center"
-        android:paddingTop="60dp"
-        android:visibility="visible"
-        app:layout_constraintTop_toBottomOf="@id/tvListTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- 记录列表 -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="0dp"
+    <ScrollView
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:paddingBottom="40dp"
-        android:clipToPadding="false"
-        app:layout_constraintTop_toBottomOf="@id/tvListTitle"
-        app:layout_constraintBottom_toTopOf="@id/tvContact"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:layout_weight="1">
 
-    <!-- 底部联系文字 -->
-    <TextView
-        android:id="@+id/tvContact"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/contact_develop"
-        android:textSize="12sp"
-        android:textColor="#999999"
-        android:gravity="center"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:background="#F0F0F0"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <GridLayout
+            android:id="@+id/grid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:padding="8dp" />
+    </ScrollView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

@@ -13,7 +13,7 @@ import java.util.List;
 
 public class ScanRecordAdapter extends RecyclerView.Adapter<ScanRecordAdapter.ViewHolder> {
 
-    private final List<ScanRecord> records;
+    private List<ScanRecord> records;
     private final OnDeleteListener deleteListener;
     private final OnEditRemarkListener editListener;
 
@@ -33,6 +33,11 @@ public class ScanRecordAdapter extends RecyclerView.Adapter<ScanRecordAdapter.Vi
         this.editListener = editListener;
     }
 
+    public void setRecords(List<ScanRecord> records) {
+        this.records = records;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -45,18 +50,32 @@ public class ScanRecordAdapter extends RecyclerView.Adapter<ScanRecordAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ScanRecord record = records.get(position);
         holder.tvSeq.setText(String.valueOf(record.getSeq()));
-        holder.tvContent.setText(record.getContent());
-        holder.tvTime.setText(record.getTime());
+
+        String formatLabel = record.getFormat() != null && !record.getFormat().isEmpty()
+            ? holder.itemView.getContext()
+                .getString(BarcodeFactory.labelRes(record.getFormat()))
+            : "";
+        holder.tvContent.setText(record.isBlocked()
+            ? holder.itemView.getContext().getString(R.string.records_blocked_prefix,
+                record.getContent())
+            : record.getContent());
+        holder.tvContent.setTextColor(record.isBlocked() ? 0xFFC62828 : 0xFF212121);
+        holder.tvTime.setText(formatLabel.isEmpty()
+            ? record.getTime()
+            : formatLabel + "  |  " + record.getTime());
+        holder.itemView.setBackgroundColor(record.isBlocked() ? 0xFFFFEBEE : 0x00000000);
 
         if (record.getRemark() != null && !record.getRemark().isEmpty()) {
             holder.tvRemark.setVisibility(View.VISIBLE);
-            holder.tvRemark.setText("备注: " + record.getRemark());
+            holder.tvRemark.setText(
+                holder.itemView.getContext().getString(R.string.records_remark_prefix,
+                    record.getRemark()));
         } else {
             holder.tvRemark.setVisibility(View.GONE);
         }
 
-        holder.btnDelete.setOnClickListener(v -> deleteListener.onDelete(holder.getAdapterPosition()));
-        holder.btnEdit.setOnClickListener(v -> editListener.onEdit(holder.getAdapterPosition()));
+        holder.btnDelete.setOnClickListener(v -> deleteListener.onDelete(holder.getBindingAdapterPosition()));
+        holder.btnEdit.setOnClickListener(v -> editListener.onEdit(holder.getBindingAdapterPosition()));
     }
 
     @Override
