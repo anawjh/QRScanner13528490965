@@ -5,16 +5,11 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +17,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
@@ -36,23 +33,24 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class ScanActivity extends AppCompatActivity {
+public class QuickScanActivity extends AppCompatActivity
+        implements ScanRecordAdapter.OnDeleteListener, ScanRecordAdapter.OnEditRemarkListener {
 
-    private static final int REQ_CAMERA = 200;
+    private static final int REQ_CAMERA = 210;
     private static final long DEDUPE_MS = 1500L;
 
     private DecoratedBarcodeView barcodeScanner;
+    private RecyclerView rvRecords;
     private TextView tvCounter;
     private TextView tvStatus;
-    private TextView tvBanner;
+    private TextView tvEmpty;
     private ImageButton btnFlash;
+    private ScanRecordAdapter adapter;
 
-    private final Handler handler = new Handler(Looper.getMainLooper());
     private final Map<String, Long> lastSeen = new HashMap<>();
     private ProjectManager projectManager;
     private ScanProject currentProject;
     private boolean isTorchOn = false;
-    private int filteredCount = 0;
 
     private final BarcodeCallback callback = new BarcodeCallback() {
         @Override
@@ -66,22 +64,29 @@ public class ScanActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.activity_scan);
+        setContentView(R.layout.activity_quick_scan);
 
         ScanSpeaker.init(this);
 
         barcodeScanner = findViewById(R.id.barcodeScanner);
+        rvRecords = findViewById(R.id.rvRecords);
         tvCounter = findViewById(R.id.tvCounter);
         tvStatus = findViewById(R.id.tvStatus);
-        tvBanner = findViewById(R.id.tvBanner);
+        tvEmpty = findViewById(R.id.tvEmpty);
         btnFlash = findViewById(R.id.btnFlash);
         Button btnClose = findViewById(R.id.btnClose);
 
         projectManager = ProjectManager.getInstance(this);
         currentProject = projectManager.getCurrent();
 
+        adapter = new ScanRecordAdapter(currentProject.records, this, this);
+        rvRecords.setLayoutManager(new LinearLayoutManager(this));
+        rvRecords.setAdapter(adapter);
+
         btnClose.setOnClickListener(v -> finish());
         btnFlash.setOnClickListener(v -> toggleTorch());
+
+        refreshList();
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -108,6 +113,9 @@ public class ScanActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        currentProject = projectManager.getCurrent();
+        adapter.setRecords(currentProject.records);
+        refreshList();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
             barcodeScanner.resume();
@@ -119,7 +127,6 @@ public class ScanActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        handler.removeCallbacksAndMessages(null);
         barcodeScanner.pause();
         if (isTorchOn) turnOffTorch();
     }
@@ -127,20 +134,17 @@ public class ScanActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (isFinishing()) {
-            ScanSpeaker.shutdown();
-        }
+        if (isFinishing()) ScanSpeaker.shutdown();
     }
 
     private void startScanning() {
         barcodeScanner.getBarcodeView()
             .setDecoderFactory(new ImageCaptureDecoderFactory(
                 ScanFilter.enabledBarcodeFormats(this)));
-        updateCounter();
         applyFlashMode();
     }
 
-    // ======================== 扫码处理 ========================
+    // ======================== 扫码 ========================
 
     private void handleResult(BarcodeResult result) {
         String content = result.getText().trim();
@@ -154,91 +158,18 @@ public class ScanActivity extends AppCompatActivity {
         Bitmap bitmap = ImageCaptureDecoderFactory.consumeBitmap();
         ImageCaptureDecoderFactory.consumeFormat();
 
-        if (Blacklist.contains(this, content)) {
-            ScanSpeaker.alertBlocked(this);
-            showBanner(content);
-            pauseForBlacklist(content, format, bitmap);
-            return;
-        }
-
-        if (!ScanFilter.matches(this, content, format)) {
-            filteredCount++;
-            showStatus(getString(R.string.scan_filtered, filteredCount));
-            return;
-        }
-
-        addRecord(content, format, false, savePhoto(bitmap));
-        ScanSpeaker.alertSuccess(this);
-        showBanner(null);
-        scheduleNext();
-    }
-
-    private void pauseForBlacklist(String content, String format, Bitmap bitmap) {
-        barcodeScanner.pause();
-
-        final String savedAction = Blacklist.getAction(this);
-        boolean[] choices = {
-            Blacklist.ACTION_SKIP.equals(savedAction),
-            Blacklist.ACTION_KEEP.equals(savedAction)
-        };
-
-        LinearLayout box = new LinearLayout(this);
-        box.setOrientation(LinearLayout.VERTICAL);
-        int pad = (int) (16 * getResources().getDisplayMetrics().density);
-        box.setPadding(pad, pad / 2, pad, 0);
-
-        RadioGroup group = new RadioGroup(this);
-        RadioButton skip = radio(R.string.blacklist_action_skip, choices[0]);
-        RadioButton keepButton = radio(R.string.blacklist_action_keep, choices[1]);
-        group.addView(skip);
-        group.addView(keepButton);
-        group.setOnCheckedChangeListener((g, id) -> {
-            choices[0] = id == skip.getId();
-            choices[1] = id == keepButton.getId();
-        });
-        box.addView(group);
-
-        CheckBox remember = new CheckBox(this);
-        remember.setText(R.string.blacklist_remember);
-        remember.setChecked(false);
-        box.addView(remember);
-
-        new AlertDialog.Builder(this)
-            .setTitle(R.string.blacklist_hit_title)
-            .setMessage(content)
-            .setView(box)
-            .setPositiveButton(R.string.confirm, (d, w) -> {
-                boolean keepRecord = choices[1];
-                if (remember.isChecked()) {
-                    Blacklist.setAction(this, keepRecord
-                        ? Blacklist.ACTION_KEEP
-                        : Blacklist.ACTION_SKIP);
-                }
-                if (keepRecord) {
-                    addRecord(content, format, true, savePhoto(bitmap));
-                }
-                showBanner(null);
-                scheduleNext();
-            })
-            .setCancelable(false)
-            .show();
-    }
-
-    private RadioButton radio(int textRes, boolean checked) {
-        RadioButton button = new RadioButton(this);
-        button.setText(textRes);
-        button.setChecked(checked);
-        return button;
-    }
-
-    private void addRecord(String content, String format, boolean blocked, String imagePath) {
         String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
             .format(new Date());
-        currentProject.records.add(0,
-            new ScanRecord(currentProject.records.size() + 1, content, time, "", format, blocked, imagePath));
+        currentProject.records.add(0, new ScanRecord(
+            currentProject.records.size() + 1, content, time, "", format, false,
+            savePhoto(bitmap)));
         resequence();
         projectManager.save(currentProject);
-        updateCounter();
+
+        ScanSpeaker.alertSuccess(this);
+        showStatus(content);
+        refreshList();
+        rvRecords.scrollToPosition(0);
     }
 
     private void resequence() {
@@ -266,39 +197,47 @@ public class ScanActivity extends AppCompatActivity {
         }
     }
 
-    // ======================== 间隔与提示 ========================
+    // ======================== 列表 ========================
 
-    private void scheduleNext() {
-        if (!ScanSettings.isContinuousEnabled(this)) {
-            showStatus(getString(R.string.scan_stopped));
-            return;
-        }
-        int interval = ScanSettings.getIntervalMs(this);
-        showStatus(getString(R.string.scan_next_in, interval / 1000f));
-        barcodeScanner.pause();
-        handler.postDelayed(() -> {
-            if (isFinishing() || isDestroyed()) return;
-            barcodeScanner.resume();
-            barcodeScanner.decodeContinuous(callback);
-            showStatus(getString(R.string.scan_ready));
-        }, interval);
+    private void refreshList() {
+        int size = currentProject.records.size();
+        tvCounter.setText(getString(R.string.scan_counter, size));
+        tvEmpty.setVisibility(size == 0 ? View.VISIBLE : View.GONE);
+        tvEmpty.setText(R.string.quick_scan_empty);
+        adapter.notifyDataSetChanged();
     }
 
-    private void showStatus(String text) {
-        tvStatus.setText(text);
+    private void showStatus(String content) {
+        tvStatus.setText(content);
     }
 
-    private void showBanner(String content) {
-        if (content == null) {
-            tvBanner.setVisibility(View.GONE);
-        } else {
-            tvBanner.setVisibility(View.VISIBLE);
-            tvBanner.setText(getString(R.string.blacklist_hit_banner, content));
-        }
+    @Override
+    public void onDelete(int position) {
+        if (position < 0 || position >= currentProject.records.size()) return;
+        currentProject.records.remove(position);
+        resequence();
+        projectManager.save(currentProject);
+        refreshList();
     }
 
-    private void updateCounter() {
-        tvCounter.setText(getString(R.string.scan_counter, currentProject.records.size()));
+    @Override
+    public void onEdit(int position) {
+        if (position < 0 || position >= currentProject.records.size()) return;
+        final ScanRecord record = currentProject.records.get(position);
+        EditText input = new EditText(this);
+        input.setText(record.getRemark() == null ? "" : record.getRemark());
+        int pad = (int) (16 * getResources().getDisplayMetrics().density);
+        input.setPadding(pad, pad / 2, pad, pad / 2);
+        new AlertDialog.Builder(this)
+            .setTitle(R.string.edit_remark_title)
+            .setView(input)
+            .setPositiveButton(R.string.confirm, (d, w) -> {
+                record.setRemark(input.getText().toString().trim());
+                projectManager.save(currentProject);
+                refreshList();
+            })
+            .setNegativeButton(android.R.string.cancel, null)
+            .show();
     }
 
     // ======================== 闪光灯 ========================

@@ -31,7 +31,12 @@
     <string name="filter_on">开启并扫码</string>
     <string name="filter_off">关闭</string>
     <string name="filter_start">开始扫码</string>
-    <string name="select_all">全选格式</string>
+    <string name="select_all">全选</string>
+    <string name="select_invert">反选</string>
+    <string name="footer_ad">开发软件，请联系13528490965</string>
+    <string name="menu_scan_now">扫一扫</string>
+    <string name="menu_scan_now_sub">边扫边看清单</string>
+    <string name="quick_scan_empty">还没有扫码记录</string>
 
     <!-- 扫码页 -->
     <string name="scan_counter">已录 %d 条</string>

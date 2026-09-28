@@ -5,8 +5,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.GridLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String LANG_EN = "en";
 
     private static final int[][] MENU = {
+        {0, R.string.menu_scan_now, R.string.menu_scan_now_sub},
         {0, R.string.menu_alpha, R.string.menu_alpha_sub},
         {0, R.string.menu_digit, R.string.menu_digit_sub},
         {0, R.string.menu_format, R.string.menu_format_sub},
@@ -39,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private static final String[] MENU_ICONS = {
-        "A", "1-9", "▤", "#", "\uD83D\uDD16", "\uD83D\uDCD3", "\uD83D\uDD16", "\uD83D\uDCD3",
+        "▣", "A", "1-9", "▤", "#", "\uD83D\uDD16", "\uD83D\uDCD3", "\uD83D\uDD16", "\uD83D\uDCD3",
         "\uD83D\uDCC4", "\uD83D\uDCC1"
     };
 
@@ -85,18 +88,18 @@ public class MainActivity extends AppCompatActivity {
 
     private String subtitleFor(int index) {
         switch (index) {
-            case 0:
+            case 1:
                 return ScanSettings.isAlphaOnly(this)
                     ? getString(R.string.state_on) : getString(R.string.state_off);
-            case 1:
+            case 2:
                 return ScanSettings.isDigitOnly(this)
                     ? getString(R.string.state_on) : getString(R.string.state_off);
-            case 2: {
+            case 3: {
                 Set<String> formats = ScanSettings.getFormats(this);
                 return formats.isEmpty() ? getString(R.string.state_all)
                     : getString(R.string.state_selected, formats.size());
             }
-            case 3: {
+            case 4: {
                 int length = ScanSettings.getFixedLength(this);
                 return length > 0 ? getString(R.string.state_length, length)
                     : getString(R.string.state_off);
@@ -116,16 +119,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void onMenuClick(int index) {
         switch (index) {
-            case 0: pickPrefix(true); break;
-            case 1: pickPrefix(false); break;
-            case 2: pickFormats(); break;
-            case 3: pickLength(); break;
-            case 4: openGenerator(false, false); break;
-            case 5: openGenerator(false, true); break;
-            case 6: openGenerator(true, false); break;
-            case 7: openGenerator(true, true); break;
-            case 8: startActivity(new Intent(this, ScanRecordActivity.class)); break;
-            case 9: startActivity(new Intent(this, GenerateRecordActivity.class)); break;
+            case 0: startActivity(new Intent(this, QuickScanActivity.class)); break;
+            case 1: pickPrefix(true); break;
+            case 2: pickPrefix(false); break;
+            case 3: pickFormats(); break;
+            case 4: pickLength(); break;
+            case 5: openGenerator(false, false); break;
+            case 6: openGenerator(false, true); break;
+            case 7: openGenerator(true, false); break;
+            case 8: openGenerator(true, true); break;
+            case 9: startActivity(new Intent(this, ScanRecordActivity.class)); break;
+            case 10: startActivity(new Intent(this, GenerateRecordActivity.class)); break;
         }
     }
 
@@ -150,29 +154,38 @@ public class MainActivity extends AppCompatActivity {
         String[] all = ScanFilter.ALL_FORMATS;
         String[] labels = new String[all.length];
         Set<String> current = ScanSettings.getFormats(this);
-        boolean[] checked = new boolean[all.length];
+        final boolean[] state = new boolean[all.length];
         for (int i = 0; i < all.length; i++) {
             labels[i] = getString(BarcodeFactory.labelRes(all[i]));
-            checked[i] = current.contains(all[i]);
+            state[i] = current.contains(all[i]);
         }
 
-        final boolean[] state = checked;
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_format_select, null);
+        final ListView list = view.findViewById(R.id.lvFormats);
+        list.setAdapter(new ArrayAdapter<>(this,
+            android.R.layout.simple_list_item_multiple_choice, labels));
+        list.post(() -> {
+            for (int i = 0; i < all.length; i++) list.setItemChecked(i, state[i]);
+        });
+
+        view.findViewById(R.id.btnSelectAll).setOnClickListener(v -> {
+            for (int i = 0; i < all.length; i++) list.setItemChecked(i, true);
+        });
+        view.findViewById(R.id.btnInvertSelect).setOnClickListener(v -> {
+            for (int i = 0; i < all.length; i++) {
+                list.setItemChecked(i, !list.isItemChecked(i));
+            }
+        });
+
         new AlertDialog.Builder(this)
             .setTitle(R.string.menu_format)
-            .setMultiChoiceItems(labels, checked,
-                (d, which, isChecked) -> state[which] = isChecked)
+            .setView(view)
             .setPositiveButton(R.string.filter_start, (d, w) -> {
                 Set<String> selected = new HashSet<>();
                 for (int i = 0; i < all.length; i++) {
-                    if (state[i]) selected.add(all[i]);
+                    if (list.isItemChecked(i)) selected.add(all[i]);
                 }
                 if (selected.isEmpty()) selected.addAll(Arrays.asList(all));
-                ScanSettings.setFormats(this, selected);
-                buildGrid();
-                startScan();
-            })
-            .setNeutralButton(R.string.select_all, (d, w) -> {
-                Set<String> selected = new HashSet<>(Arrays.asList(all));
                 ScanSettings.setFormats(this, selected);
                 buildGrid();
                 startScan();

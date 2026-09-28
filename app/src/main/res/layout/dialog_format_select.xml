@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="6dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="6dp">
+
+        <Button
+            android:id="@+id/btnSelectAll"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="5dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:text="@string/select_all"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#1976D2"
+            android:stateListAnimator="@null" />
+
+        <Button
+            android:id="@+id/btnInvertSelect"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:layout_marginStart="5dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:text="@string/select_invert"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#7B1FA2"
+            android:stateListAnimator="@null" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/lvFormats"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="240dp"
+        android:choiceMode="multipleChoice"
+        android:divider="#E0E0E0"
+        android:dividerHeight="1dp" />
+
+</LinearLayout>
