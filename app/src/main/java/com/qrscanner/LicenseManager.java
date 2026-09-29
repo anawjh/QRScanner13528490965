@@ -106,6 +106,10 @@ public final class LicenseManager {
         editor.apply();
     }
 
+    public static void resetTrial(Context context) {
+        prefs(context).edit().putInt(KEY_COUNT, 0).apply();
+    }
+
     /** True while the trial still allows exporting. */
     public static boolean canExport(Context context) {
         if (isActivated(context)) return true;
