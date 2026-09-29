@@ -176,7 +176,8 @@ public final class AdPoller {
         String json = jsonp.substring(jsonp.indexOf('(') + 1);
         if (json.endsWith(")")) json = json.substring(0, json.length() - 1);
         JSONObject root = new JSONObject(json);
-        JSONObject c = root.optJSONObject("collab_client_vars");
+        JSONObject cv = root.optJSONObject("clientVars");
+        JSONObject c = cv == null ? null : cv.optJSONObject("collab_client_vars");
         if (c == null) return new ArrayList<>();
         JSONObject att = c.optJSONObject("initialAttributedText");
         if (att == null) return new ArrayList<>();
