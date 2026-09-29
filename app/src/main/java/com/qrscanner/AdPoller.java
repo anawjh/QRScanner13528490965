@@ -49,9 +49,10 @@ public final class AdPoller {
                         errs.append(url).append(": 内容为空或无法识别; ");
                         continue;
                     }
-                    AdStore.saveRemote(app, parsed, url);
+                    List<AdEntry> enriched = enrichFromLinks(parsed);
+                    AdStore.saveRemote(app, enriched, url);
                     MAIN.post(() -> {
-                        if (callback != null) callback.onAdLoaded(parsed);
+                        if (callback != null) callback.onAdLoaded(enriched);
                     });
                     return;
                 } catch (Exception e) {
@@ -68,6 +69,63 @@ public final class AdPoller {
         });
         worker.setDaemon(true);
         worker.start();
+    }
+
+    /**
+     * 以链接内容为准：如果广告条目的链接指向一个“内容页”
+     * （含 marquee 的 HTML / JSON / 管道文本 / 纯文本），
+     * 就把该页面上的文字抓下来替换为广告文案，跳转仍指向该链接。
+     * 普通页面（视频、防爬等）保持原始文案，避免抓到噪声。
+     */
+    static List<AdEntry> enrichFromLinks(List<AdEntry> entries) {
+        List<AdEntry> out = new ArrayList<>(entries);
+        java.util.Map<String, AdEntry> byLink = new java.util.HashMap<>();
+        for (int i = 0; i < out.size(); i++) {
+            AdEntry e = out.get(i);
+            if (e.link.isEmpty()) continue;
+            AdEntry content;
+            if (byLink.containsKey(e.link)) {
+                content = byLink.get(e.link);
+            } else {
+                content = fetchLinkContent(e.link);
+                byLink.put(e.link, content);
+            }
+            if (content != null && !content.text.isEmpty()) {
+                out.set(i, new AdEntry(e.startHour, e.endHour, content.text,
+                    content.link.isEmpty() ? e.link : content.link));
+            }
+        }
+        return out;
+    }
+
+    private static AdEntry fetchLinkContent(String link) {
+        try {
+            String body = fetch(link);
+            if (body == null || !isAdContent(body)) return null;
+            List<AdEntry> parsed = parse(body);
+            for (AdEntry p : parsed) {
+                if (!p.text.isEmpty()) return p;
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "link content fetch failed [" + link + "]: "
+                + (e.getMessage() == null ? e.toString() : e.getMessage()));
+        }
+        return null;
+    }
+
+    /** 只把“明确是广告内容”的响应当作内容源，避免把普通网页噪声当文案。 */
+    static boolean isAdContent(String body) {
+        if (body == null) return false;
+        String t = body.trim();
+        if (t.startsWith("{") || t.startsWith("[")) return true;
+        String lower = t.toLowerCase();
+        if (lower.contains("marquee")) return true;
+        for (String line : t.split("\\r?\\n")) {
+            String s = line.trim();
+            if (s.isEmpty()) continue;
+            return s.contains("|");
+        }
+        return false;
     }
 
     private static String fetch(String url) throws Exception {
