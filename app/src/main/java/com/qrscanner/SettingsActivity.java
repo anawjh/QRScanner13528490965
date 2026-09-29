@@ -54,6 +54,7 @@ public class SettingsActivity extends AppCompatActivity {
         addSwitchRow(R.string.set_filter_digit, ScanSettings.isDigitOnly(this),
             checked -> ScanSettings.setDigitOnly(this, checked));
         addRow(R.string.set_filter_length, lengthLabel(), v -> promptLength());
+        addRow(R.string.set_contact_dev, getString(R.string.set_contact_dev_value), null);
     }
 
     // ======================== 交互 ========================
