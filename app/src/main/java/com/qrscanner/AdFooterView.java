@@ -25,8 +25,8 @@ import androidx.appcompat.app.AlertDialog;
 public class AdFooterView extends FrameLayout {
 
     private static final long REFRESH_MS = 60_000L;
-    private static final long SCROLL_MS = 25_000L;
     private static final long GRADIENT_MS = 6_000L;
+    private static final float SCROLL_SPEED = 0.07f;
     private static final String SEP = "        ";
 
     private static final int[] GRADIENT_COLORS = {
@@ -156,7 +156,8 @@ public class AdFooterView extends FrameLayout {
 
         float period = (float) laidWidth / copies;
         scrollAnimator = ObjectAnimator.ofFloat(tvAdText, View.TRANSLATION_X, 0f, -period);
-        scrollAnimator.setDuration(SCROLL_MS);
+        long duration = Math.min(45_000L, Math.max(5_000L, (long) (period / SCROLL_SPEED)));
+        scrollAnimator.setDuration(duration);
         scrollAnimator.setInterpolator(new LinearInterpolator());
         scrollAnimator.setRepeatCount(ValueAnimator.INFINITE);
         scrollAnimator.start();

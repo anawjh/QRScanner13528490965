@@ -433,12 +433,10 @@ public final class AdPoller {
         return new AdEntry(0, 24, text, link);
     }
 
-    /** 去除多余空白并把页面里为对齐滚动的重复片段去重。 */
+    /** 去除多余空白；保留完整文案，不截断长度。 */
     private static String collapse(String raw) {
         if (raw == null) return "";
-        String s = raw.replaceAll("\\s+", " ").trim();
-        if (s.length() > 160) s = s.substring(0, 160);
-        return s;
+        return raw.replaceAll("\\s+", " ").trim();
     }
 
     /** 解析 "0-8"、"0:00-8:00"、"8"（单值当作到当天结束）。 */
