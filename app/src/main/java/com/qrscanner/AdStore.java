@@ -21,13 +21,13 @@ public final class AdStore {
     private static final String KEY_REMOTE_TIME = "remote_time";
     private static final String KEY_REMOTE_ERROR = "remote_error";
     private static final String KEY_REMOTE_ACTIVE = "remote_active";
+    private static final String KEY_LOCAL_EDITED = "local_edited";
 
     /**
-     * 默认模式：按顺序尝试这些云端内容源，谁成功就用谁，全部失败才用内置内容。
-     * 各源内容均可随时在对应位置更新，App 每 60 秒自动读取一次。
+     * 安装程序（手机）即载体：内容常驻手机，默认跟随云端源自动更新；
+     * 在手机上手动编辑过后，本机内容优先，云端更新暂停，可随时恢复。
      */
     private static final String[] DEFAULT_URLS = {
-        "http://1025-10-cn/nc/index.php",
         "https://raw.githubusercontent.com/anawjh/QRScanner13528490965/feature/v3/ads.json"
     };
 
@@ -51,6 +51,14 @@ public final class AdStore {
 
     public static void setRemoteUrl(Context context, String url) {
         prefs(context).edit().putString(KEY_REMOTE, url == null ? "" : url.trim()).apply();
+    }
+
+    public static boolean isLocalEdited(Context context) {
+        return prefs(context).getBoolean(KEY_LOCAL_EDITED, false);
+    }
+
+    public static void setLocalEdited(Context context, boolean edited) {
+        prefs(context).edit().putBoolean(KEY_LOCAL_EDITED, edited).apply();
     }
 
     public static void clearRemoteCache(Context context) {
@@ -109,25 +117,30 @@ public final class AdStore {
     }
 
     public static List<AdEntry> all(Context context) {
-        if (!getRemoteUrl(context).isEmpty()) {
+        boolean edited = isLocalEdited(context);
+        if (!edited) {
             List<AdEntry> remote = remoteEntries(context);
             if (remote != null) return remote;
         }
-        SharedPreferences prefs = prefs(context);
-        String raw = prefs.getString(KEY_ENTRIES, null);
+        List<AdEntry> local = localEntries(context);
+        if (local.isEmpty()) local = bundled(context);
+        if (local.isEmpty()) local.add(defaultEntry(context));
+        return local;
+    }
+
+    /** 手机上保存过的内容（首次为空，回落到安装包内置）。 */
+    private static List<AdEntry> localEntries(Context context) {
         List<AdEntry> list = new ArrayList<>();
-        if (raw != null) {
-            try {
-                JSONArray arr = new JSONArray(raw);
-                for (int i = 0; i < arr.length(); i++) {
-                    JSONObject o = arr.optJSONObject(i);
-                    if (o != null) list.add(AdEntry.fromJson(o));
-                }
-            } catch (Exception ignored) {
+        String raw = prefs(context).getString(KEY_ENTRIES, null);
+        if (raw == null) return list;
+        try {
+            JSONArray arr = new JSONArray(raw);
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject o = arr.optJSONObject(i);
+                if (o != null) list.add(AdEntry.fromJson(o));
             }
+        } catch (Exception ignored) {
         }
-        if (list.isEmpty()) list.addAll(bundled(context));
-        if (list.isEmpty()) list.add(defaultEntry(context));
         return list;
     }
 
@@ -149,10 +162,14 @@ public final class AdStore {
         return list;
     }
 
+    /** 保存手机本地内容，并标记为“本机优先”（云端更新暂停）。 */
     public static void save(Context context, List<AdEntry> entries) {
         JSONArray arr = new JSONArray();
         for (AdEntry e : entries) arr.put(e.toJson());
-        prefs(context).edit().putString(KEY_ENTRIES, arr.toString()).apply();
+        prefs(context).edit()
+            .putString(KEY_ENTRIES, arr.toString())
+            .putBoolean(KEY_LOCAL_EDITED, true)
+            .apply();
     }
 
     public static AdEntry current(Context context) {
