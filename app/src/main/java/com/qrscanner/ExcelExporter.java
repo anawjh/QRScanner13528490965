@@ -44,7 +44,7 @@ import java.util.Locale;
 
 public final class ExcelExporter {
 
-    public static final int MAX_IMAGES = 400;
+    public static final int MAX_IMAGES = 1000;
 
     private static final int BARCODE_WIDTH = 600;
     private static final int BARCODE_HEIGHT = 200;
@@ -54,6 +54,12 @@ public final class ExcelExporter {
     private static final int IMAGE_COL_WIDTH = 45;
     private static final short BARCODE_ROW_HEIGHT = 1600;
     private static final short QR_ROW_HEIGHT = 4800;
+
+    private static final int PHOTO_COL = 5;
+    private static final int PHOTO_COL_WIDTH = 60;
+    private static final short PHOTO_ROW_HEIGHT = 3000;
+    private static final short BODY_ROW_HEIGHT = 400;
+    private static final long MAX_PHOTO_BYTES = 12L * 1024 * 1024;
 
     private static final String MIME =
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -70,14 +76,48 @@ public final class ExcelExporter {
         return count > MAX_IMAGES;
     }
 
+    public static void showExportChoice(Activity activity, List<ScanRecord> records, String projectName) {
+        if (activity == null) return;
+        if (records == null || records.isEmpty()) {
+            Toast.makeText(activity, R.string.export_no_records, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        int photos = countPhotos(records);
+        if (photos == 0) {
+            exportScanRecords(activity, records, projectName, false);
+            return;
+        }
+        if (photos > MAX_IMAGES) {
+            new AlertDialog.Builder(activity)
+                .setTitle(R.string.export_photo_limit_title)
+                .setMessage(activity.getString(R.string.export_photo_limit_message, photos, MAX_IMAGES))
+                .setPositiveButton(R.string.confirm,
+                    (d, w) -> exportScanRecords(activity, records, projectName, true))
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+            return;
+        }
+        String[] options = {
+            activity.getString(R.string.export_with_photos, photos),
+            activity.getString(R.string.export_without_photos)
+        };
+        new AlertDialog.Builder(activity)
+            .setTitle(R.string.export_photo_choice_title)
+            .setItems(options, (d, which) ->
+                exportScanRecords(activity, records, projectName, which == 0))
+            .setNegativeButton(android.R.string.cancel, null)
+            .show();
+    }
+
     // ======================== 导出入口 ========================
 
-    public static void exportScanRecords(Context context, List<ScanRecord> records, String projectName) {
+    public static void exportScanRecords(Context context, List<ScanRecord> records, String projectName,
+                                         boolean withPhotos) {
         final List<ScanRecord> snapshot = new ArrayList<>(records);
         final String name = projectName;
         run(context, () -> {
             try (Workbook workbook = new XSSFWorkbook()) {
-                buildScanRecords(workbook, context, snapshot);
+                buildScanRecords(workbook, context, snapshot, withPhotos);
                 publish(context, workbook, name);
             }
         });
@@ -108,20 +148,30 @@ public final class ExcelExporter {
 
     // ======================== 工作表 ========================
 
-    private static void buildScanRecords(Workbook workbook, Context context, List<ScanRecord> records) {
-        Sheet sheet = workbook.createSheet("Scan Records");
+    private static void buildScanRecords(Workbook workbook, Context context, List<ScanRecord> records,
+                                         boolean withPhotos) {
+        List<ScanRecord> sorted = new ArrayList<>(records);
+        sorted.sort((a, b) -> a.getSeq() - b.getSeq());
+
+        int photos = countPhotos(sorted);
+        boolean embed = withPhotos && photos > 0 && photos <= MAX_IMAGES;
+
+        XSSFSheet sheet = (XSSFSheet) workbook.createSheet("Scan Records");
         sheet.setColumnWidth(0, 8 * 256);
         sheet.setColumnWidth(1, 50 * 256);
         sheet.setColumnWidth(2, 20 * 256);
         sheet.setColumnWidth(3, 22 * 256);
         sheet.setColumnWidth(4, 30 * 256);
+        if (embed) sheet.setColumnWidth(PHOTO_COL, PHOTO_COL_WIDTH * 256);
 
         CellStyle headerStyle = headerStyle(workbook);
         CellStyle evenStyle = bodyStyle(workbook, true);
         CellStyle oddStyle = bodyStyle(workbook, false);
 
         Row headerRow = sheet.createRow(0);
-        String[] headers = {"#", "QR/Barcode Content", "Format", "Scan Time", "Remark"};
+        String[] headers = embed
+            ? new String[] {"#", "QR/Barcode Content", "Format", "Scan Time", "Remark", "Photo"}
+            : new String[] {"#", "QR/Barcode Content", "Format", "Scan Time", "Remark"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -129,22 +179,36 @@ public final class ExcelExporter {
         }
         headerRow.setHeight((short) 500);
 
-        List<ScanRecord> sorted = new ArrayList<>(records);
-        sorted.sort((a, b) -> a.getSeq() - b.getSeq());
+        XSSFDrawing drawing = embed ? sheet.createDrawingPatriarch() : null;
+
         for (int i = 0; i < sorted.size(); i++) {
             ScanRecord r = sorted.get(i);
             Row row = sheet.createRow(i + 1);
             CellStyle style = (i % 2 == 0) ? oddStyle : evenStyle;
-            row.setHeight((short) 400);
+            row.setHeight(embed ? PHOTO_ROW_HEIGHT : BODY_ROW_HEIGHT);
             cell(row, 0, String.valueOf(r.getSeq()), style);
             cell(row, 1, r.getContent(), style);
             cell(row, 2, formatLabel(context, r.getFormat()), style);
             cell(row, 3, r.getTime(), style);
             cell(row, 4, (r.isBlocked() ? "[拦截] " : "") + r.getRemark(), style);
+            if (embed) {
+                byte[] jpeg = readPhoto(r.getImagePath());
+                if (jpeg != null) {
+                    int index = workbook.addPicture(jpeg, Workbook.PICTURE_TYPE_JPEG);
+                    XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0,
+                        PHOTO_COL, i + 1, PHOTO_COL + 1, i + 2);
+                    drawing.createPicture(anchor, index);
+                }
+            }
         }
 
-        cell(sheet.createRow(sorted.size() + 2), 0,
-            "导出时间: " + now() + "  |  共 " + sorted.size() + " 条", oddStyle);
+        String note = "导出时间: " + now() + "  |  共 " + sorted.size() + " 条";
+        if (withPhotos && photos == 0) {
+            note += "  |  选择带图片导出，但没有找到可用的照片文件";
+        } else if (withPhotos && photos > MAX_IMAGES) {
+            note += "  |  照片数超过 " + MAX_IMAGES + "，已省略照片，仅导出内容";
+        }
+        cell(sheet.createRow(sorted.size() + 2), 0, note, oddStyle);
     }
 
     private static void buildCodes(Workbook workbook, Context context, String format,
@@ -335,6 +399,37 @@ public final class ExcelExporter {
         Cell cell = row.createCell(index);
         cell.setCellValue(value == null ? "" : value);
         cell.setCellStyle(style);
+    }
+
+    private static int countPhotos(List<ScanRecord> records) {
+        int total = 0;
+        for (ScanRecord r : records) {
+            String path = r.getImagePath();
+            if (path != null && !path.isEmpty() && ScanPhotoStore.exists(path)) total++;
+        }
+        return total;
+    }
+
+    private static byte[] readPhoto(String path) {
+        if (path == null || path.isEmpty() || !ScanPhotoStore.exists(path)) return null;
+        try {
+            File file = new File(path);
+            long length = file.length();
+            if (length <= 0 || length > MAX_PHOTO_BYTES) return null;
+            byte[] data = new byte[(int) length];
+            try (java.io.InputStream in = new java.io.FileInputStream(file)) {
+                int read = 0;
+                while (read < data.length) {
+                    int n = in.read(data, read, data.length - read);
+                    if (n < 0) break;
+                    read += n;
+                }
+                if (read != data.length) return null;
+            }
+            return data;
+        } catch (IOException | SecurityException e) {
+            return null;
+        }
     }
 
     private static String preview(List<String> items) {

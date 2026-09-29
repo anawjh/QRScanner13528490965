@@ -235,6 +235,11 @@ or
     <string name="export_working">Generating Excel…</string>
     <string name="export_image_confirm_title">Many items</string>
     <string name="export_image_confirm_message">%1$d items in total. Above %2$d items, barcode images are omitted and only content is exported. Continue?</string>
+    <string name="export_photo_choice_title">Export Option</string>
+    <string name="export_with_photos">With photos (%1$d)</string>
+    <string name="export_without_photos">Content only</string>
+    <string name="export_photo_limit_title">Too many photos</string>
+    <string name="export_photo_limit_message">%1$d photos in total. Above %2$d photos, images are omitted and only content is exported. Continue?</string>
     <string name="share">Share</string>
     <string name="camera_permission_denied">Camera permission is required to scan</string>
 </resources>

@@ -49,7 +49,7 @@ public class ScanRecordActivity extends AppCompatActivity {
         findViewById(R.id.btnNewProject).setOnClickListener(v -> showNewProjectDialog());
         btnClear.setOnClickListener(v -> showClearDialog());
         btnExport.setOnClickListener(v ->
-            ExcelExporter.exportScanRecords(this, project().records, project().name));
+            ExcelExporter.showExportChoice(this, project().records, project().name));
     }
 
     @Override

@@ -235,6 +235,11 @@
     <string name="export_working">正在生成 Excel…</string>
     <string name="export_image_confirm_title">条数较多</string>
     <string name="export_image_confirm_message">共 %1$d 条，超过 %2$d 条后不再嵌入条码图片，仅导出内容。是否继续？</string>
+    <string name="export_photo_choice_title">导出方式</string>
+    <string name="export_with_photos">带照片导出（%1$d 张）</string>
+    <string name="export_without_photos">仅导出内容</string>
+    <string name="export_photo_limit_title">照片较多</string>
+    <string name="export_photo_limit_message">共 %1$d 张照片，超过 %2$d 张将不再嵌入照片，仅导出内容。是否继续？</string>
     <string name="share">分享</string>
     <string name="camera_permission_denied">需要相机权限才能扫码</string>
 

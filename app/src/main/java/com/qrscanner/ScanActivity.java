@@ -318,25 +318,7 @@ public class ScanActivity extends AppCompatActivity {
     }
 
     private void exportExcel() {
-        if (currentProject.records.isEmpty()) {
-            Toast.makeText(this, R.string.export_no_records, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (ExcelExporter.requiresImageConfirm(currentProject.records.size())) {
-            new AlertDialog.Builder(this)
-                .setTitle(R.string.export_image_confirm_title)
-                .setMessage(getString(R.string.export_image_confirm_message,
-                    currentProject.records.size(), ExcelExporter.MAX_IMAGES))
-                .setPositiveButton(R.string.confirm, (d, w) -> doExport())
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
-            return;
-        }
-        doExport();
-    }
-
-    private void doExport() {
-        ExcelExporter.exportScanRecords(this, currentProject.records, currentProject.name);
+        ExcelExporter.showExportChoice(this, currentProject.records, currentProject.name);
     }
 
     // ======================== 闪光灯 ========================
