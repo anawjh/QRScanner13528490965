@@ -136,18 +136,26 @@ public class AdFooterView extends FrameLayout {
         tvAdText.setTranslationX(0f);
         String unit = currentText + SEP;
 
-        float unitWidth = tvAdText.getPaint().measureText(unit);
-        if (unitWidth <= 0f) {
+        float est = tvAdText.getPaint().measureText(unit);
+        if (est <= 0f) {
+            tvAdText.setText(currentText);
+            return;
+        }
+        int copies = (int) Math.ceil((2.0 * viewWidth) / est) + 2;
+        StringBuilder sb = new StringBuilder(unit.length() * copies);
+        for (int i = 0; i < copies; i++) sb.append(unit);
+        tvAdText.setText(sb.toString());
+        tvAdText.measure(
+            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+        int laidWidth = tvAdText.getMeasuredWidth();
+        if (laidWidth <= 0) {
             tvAdText.setText(currentText);
             return;
         }
 
-        int copies = (int) Math.ceil((2.0 * viewWidth) / unitWidth) + 2;
-        StringBuilder sb = new StringBuilder(unit.length() * copies);
-        for (int i = 0; i < copies; i++) sb.append(unit);
-        tvAdText.setText(sb.toString());
-
-        scrollAnimator = ObjectAnimator.ofFloat(tvAdText, View.TRANSLATION_X, 0f, -unitWidth);
+        float period = (float) laidWidth / copies;
+        scrollAnimator = ObjectAnimator.ofFloat(tvAdText, View.TRANSLATION_X, 0f, -period);
         scrollAnimator.setDuration(SCROLL_MS);
         scrollAnimator.setInterpolator(new LinearInterpolator());
         scrollAnimator.setRepeatCount(ValueAnimator.INFINITE);
