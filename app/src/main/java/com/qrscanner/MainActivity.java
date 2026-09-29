@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ScanSpeaker.init(this);
+
         grid = findViewById(R.id.grid);
         tvSummary = findViewById(R.id.tvSummary);
 

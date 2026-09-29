@@ -70,6 +70,8 @@
     <string name="export_no_records">No records yet</string>
     <string name="photo_delete_all">Clear all</string>
     <string name="photo_delete_all_count">Clear all (%1$d)</string>
+    <string name="set_alert_test_sound">Test sound</string>
+    <string name="set_alert_test_sound_desc">Tap to test the alert sound</string>
     <string name="set_alert_test_vibrate">Test vibration</string>
     <string name="set_alert_test_vibrate_desc">Tap to test</string>
     <string name="vibrate_not_supported">This device has no vibrator, or vibration is not permitted</string>

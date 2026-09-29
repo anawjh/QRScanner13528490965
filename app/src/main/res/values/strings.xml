@@ -70,6 +70,8 @@
     <string name="export_no_records">还没有扫码记录</string>
     <string name="photo_delete_all">清空全部</string>
     <string name="photo_delete_all_count">清空全部（%1$d）</string>
+    <string name="set_alert_test_sound">测试提示音</string>
+    <string name="set_alert_test_sound_desc">点击测试本机提示音</string>
     <string name="set_alert_test_vibrate">测试震动</string>
     <string name="set_alert_test_vibrate_desc">点击测试本机震动</string>
     <string name="vibrate_not_supported">本机没有震动马达，或系统未授予震动权限</string>

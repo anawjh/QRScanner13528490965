@@ -35,6 +35,8 @@ public class SettingsActivity extends AppCompatActivity {
         container.removeAllViews();
         addSection(R.string.section_scan);
         addRow(R.string.set_alert_mode, alertLabel(), v -> pickAlertMode());
+        addRow(R.string.set_alert_test_sound, getString(R.string.set_alert_test_sound_desc),
+            v -> testSound());
         addRow(R.string.set_alert_test_vibrate, getString(R.string.set_alert_test_vibrate_desc),
             v -> testVibrate());
         addRow(R.string.set_interval, intervalLabel(), v -> pickInterval());
@@ -58,6 +60,11 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     // ======================== 交互 ========================
+
+    private void testSound() {
+        ScanSpeaker.init(this);
+        ScanSpeaker.testSound();
+    }
 
     private void testVibrate() {
         if (!ScanSpeaker.canVibrate(this)) {
