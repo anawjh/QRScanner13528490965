@@ -21,11 +21,10 @@ public final class AdStore {
     private static final String KEY_REMOTE_TIME = "remote_time";
     private static final String KEY_REMOTE_ERROR = "remote_error";
     private static final String KEY_REMOTE_ACTIVE = "remote_active";
-    private static final String KEY_LOCAL_EDITED = "local_edited";
 
     /**
-     * 安装程序（手机）即载体：内容常驻手机，默认跟随云端源自动更新；
-     * 在手机上手动编辑过后，本机内容优先，云端更新暂停，可随时恢复。
+     * 广告内容由开发者设计并维护：默认内置，联网时从中转源自动更新。
+     * 使用者的手机上没有任何编辑入口。
      */
     private static final String[] DEFAULT_URLS = {
         "https://raw.githubusercontent.com/anawjh/QRScanner13528490965/feature/v3/ads.json"
@@ -51,14 +50,6 @@ public final class AdStore {
 
     public static void setRemoteUrl(Context context, String url) {
         prefs(context).edit().putString(KEY_REMOTE, url == null ? "" : url.trim()).apply();
-    }
-
-    public static boolean isLocalEdited(Context context) {
-        return prefs(context).getBoolean(KEY_LOCAL_EDITED, false);
-    }
-
-    public static void setLocalEdited(Context context, boolean edited) {
-        prefs(context).edit().putBoolean(KEY_LOCAL_EDITED, edited).apply();
     }
 
     public static void clearRemoteCache(Context context) {
@@ -117,11 +108,8 @@ public final class AdStore {
     }
 
     public static List<AdEntry> all(Context context) {
-        boolean edited = isLocalEdited(context);
-        if (!edited) {
-            List<AdEntry> remote = remoteEntries(context);
-            if (remote != null) return remote;
-        }
+        List<AdEntry> remote = remoteEntries(context);
+        if (remote != null) return remote;
         List<AdEntry> local = localEntries(context);
         if (local.isEmpty()) local = bundled(context);
         if (local.isEmpty()) local.add(defaultEntry(context));
@@ -162,14 +150,11 @@ public final class AdStore {
         return list;
     }
 
-    /** 保存手机本地内容，并标记为“本机优先”（云端更新暂停）。 */
+    /** 保存内容到本地共享存储（预留，供开发者工具使用）。 */
     public static void save(Context context, List<AdEntry> entries) {
         JSONArray arr = new JSONArray();
         for (AdEntry e : entries) arr.put(e.toJson());
-        prefs(context).edit()
-            .putString(KEY_ENTRIES, arr.toString())
-            .putBoolean(KEY_LOCAL_EDITED, true)
-            .apply();
+        prefs(context).edit().putString(KEY_ENTRIES, arr.toString()).apply();
     }
 
     public static AdEntry current(Context context) {
