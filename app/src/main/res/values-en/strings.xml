@@ -117,8 +117,7 @@ or
     <string name="set_filter_length">Fixed length</string>
     <string name="set_filter_length_value">%d</string>
     <string name="set_filter_length_hint">Content length, 0 means no limit</string>
-    <string name="set_contact_dev">Contact developer</string>
-    <string name="set_contact_dev_value">13528490965</string>
+    <string name="set_contact_dev">Contact developer 13528490965 09173038261 09173966959</string>
     <string name="set_not_set">Not set</string>
     <string name="set_enabled">Enabled</string>
     <string name="set_disabled">Disabled</string>

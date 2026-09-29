@@ -54,7 +54,7 @@ public class SettingsActivity extends AppCompatActivity {
         addSwitchRow(R.string.set_filter_digit, ScanSettings.isDigitOnly(this),
             checked -> ScanSettings.setDigitOnly(this, checked));
         addRow(R.string.set_filter_length, lengthLabel(), v -> promptLength());
-        addRow(R.string.set_contact_dev, getString(R.string.set_contact_dev_value), null);
+        addNoteRow(R.string.set_contact_dev);
     }
 
     // ======================== 交互 ========================
@@ -182,6 +182,29 @@ public class SettingsActivity extends AppCompatActivity {
         row.addView(valueView);
 
         row.setOnClickListener(listener);
+        container.addView(row);
+    }
+
+    private void addNoteRow(int textRes) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER);
+        row.setBackgroundColor(Color.WHITE);
+        row.setPadding(dp(14), dp(14), dp(14), dp(14));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.bottomMargin = dp(8);
+        row.setLayoutParams(lp);
+
+        TextView text = new TextView(this);
+        text.setText(textRes);
+        text.setTextSize(15f);
+        text.setTextColor(Color.parseColor("#212121"));
+        text.setGravity(Gravity.CENTER);
+        text.setLineSpacing(0f, 1.2f);
+        row.addView(text, new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
         container.addView(row);
     }
 

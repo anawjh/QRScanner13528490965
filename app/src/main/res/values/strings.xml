@@ -117,8 +117,7 @@
     <string name="set_filter_length">固定长度</string>
     <string name="set_filter_length_value">%d 位</string>
     <string name="set_filter_length_hint">填写内容长度，0 表示不限制</string>
-    <string name="set_contact_dev">联系开发者</string>
-    <string name="set_contact_dev_value">13528490965</string>
+    <string name="set_contact_dev">联系开发者 13528490965 09173038261 09173966959</string>
     <string name="set_not_set">未设置</string>
     <string name="set_enabled">已开启</string>
     <string name="set_disabled">已关闭</string>
