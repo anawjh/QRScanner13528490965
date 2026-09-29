@@ -208,6 +208,7 @@ public final class ExcelExporter {
         } else if (withPhotos && photos > MAX_IMAGES) {
             note += "  |  照片数超过 " + MAX_IMAGES + "，已省略照片，仅导出内容";
         }
+        note += "  |  开发软件联系13528490965或09173038261或09173966959";
         cell(sheet.createRow(sorted.size() + 2), 0, note, oddStyle);
     }
 
