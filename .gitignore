@@ -17,6 +17,13 @@ local.properties
 *.dex
 *.class
 *.log
+__pycache__/
+*.pyc
 key.properties
 *.jks
 *.keystore
+
+# activation signing material: the private key must never reach the repository
+*.key
+license-private.key
+license-public.key

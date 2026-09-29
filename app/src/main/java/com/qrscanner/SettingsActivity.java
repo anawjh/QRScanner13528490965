@@ -56,7 +56,16 @@ public class SettingsActivity extends AppCompatActivity {
         addSwitchRow(R.string.set_filter_digit, ScanSettings.isDigitOnly(this),
             checked -> ScanSettings.setDigitOnly(this, checked));
         addRow(R.string.set_filter_length, lengthLabel(), v -> promptLength());
+        addSection(R.string.license_section);
+        addRow(R.string.license_title, licenseLabel(), v -> LicenseActivity.open(this, false));
         addNoteRow(R.string.set_contact_dev);
+    }
+
+    private String licenseLabel() {
+        if (LicenseManager.isActivated(this)) return getString(R.string.license_activated);
+        int left = LicenseManager.remainingExports(this);
+        if (LicenseManager.isTestMode(this)) return getString(R.string.license_test_mode);
+        return getString(R.string.license_trial_left, left);
     }
 
     // ======================== 交互 ========================

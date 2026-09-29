@@ -249,4 +249,38 @@
     <string name="voice_scan_success_en" translatable="false">Scan successful</string>
     <string name="voice_blocked_zh" translatable="false">命中拦截名单</string>
     <string name="voice_blocked_en" translatable="false">Blacklisted item detected</string>
+    <string name="license_title">软件激活</string>
+    <string name="license_section">关于与授权</string>
+    <string name="license_status_label">当前状态</string>
+    <string name="license_activated">已激活</string>
+    <string name="license_not_activated">未激活</string>
+    <string name="license_trial_left">剩余免费导出 %1$d 次</string>
+    <string name="license_trial_used">已使用 %1$d / %2$d 次</string>
+    <string name="license_model_label">设备型号</string>
+    <string name="license_code_label">机器码</string>
+    <string name="license_copy_code">复制机器码</string>
+    <string name="license_code_copied">机器码已复制，请发送给开发者</string>
+    <string name="license_input_label">激活码</string>
+    <string name="license_input_hint">请输入激活码（128 位，可含横线）</string>
+    <string name="license_activate">立即激活</string>
+    <string name="license_activated_ok">激活成功，感谢支持</string>
+    <string name="license_err_format">激活码格式不正确，请检查是否复制完整</string>
+    <string name="license_err_signature">激活码无效或已被修改</string>
+    <string name="license_err_device">激活码与本机不匹配</string>
+    <string name="license_err_version">激活码版本不兼容，请升级软件</string>
+    <string name="license_blocked_title">导出次数已用完</string>
+    <string name="license_blocked_msg">免费导出次数已用完（共 %1$d 次），激活后即可无限次导出。</string>
+    <string name="license_blocked_menu">导出次数已用完，请先激活</string>
+    <string name="license_blocked_export">导出次数已用完，请先激活软件</string>
+    <string name="license_goto">去激活</string>
+    <string name="license_cancel">稍后再说</string>
+    <string name="license_menu_locked">需激活</string>
+    <string name="license_test_mode">开发者测试模式</string>
+    <string name="license_test_mode_desc">模拟试用次数已用满，用于快速测试激活拦截</string>
+    <string name="license_test_on">测试模式已开启，导出将被拦截</string>
+    <string name="license_test_off">测试模式已关闭</string>
+    <string name="license_selftest_ok">验签自检通过</string>
+    <string name="license_selftest_fail">验签自检失败，请勿输入激活码</string>
+    <string name="license_reset_trial">重置试用计数</string>
+    <string name="license_bound_note">激活码与本机型号绑定，一机一码；卸载重装后需要重新激活。</string>
 </resources>

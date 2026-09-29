@@ -88,10 +88,19 @@ public class MainActivity extends AppCompatActivity {
             ((TextView) cell.findViewById(R.id.tvIcon)).setText(MENU_ICONS[i]);
             ((TextView) cell.findViewById(R.id.tvTitle)).setText(MENU[i][1]);
             TextView subtitle = cell.findViewById(R.id.tvSubtitle);
-            subtitle.setText(subtitleFor(i));
+            boolean locked = isLocked(index);
+            subtitle.setText(locked ? getString(R.string.license_menu_locked) : subtitleFor(i));
+            subtitle.setTextColor(Color.parseColor(locked ? "#E53935" : "#9E9E9E"));
+            cell.setAlpha(locked ? 0.5f : 1f);
             cell.setOnClickListener(v -> onMenuClick(index));
             grid.addView(cell);
         }
+    }
+
+    /** The record screens only lead to exports, so they lock with the export limit. */
+    private boolean isLocked(int index) {
+        if (index != 9 && index != 10) return false;
+        return !LicenseManager.canExport(this);
     }
 
     private String subtitleFor(int index) {
@@ -135,6 +144,10 @@ public class MainActivity extends AppCompatActivity {
     // ======================== 菜单动作 ========================
 
     private void onMenuClick(int index) {
+        if (isLocked(index)) {
+            LicenseActivity.promptForActivation(this);
+            return;
+        }
         switch (index) {
             case 0: startActivity(new Intent(this, QuickScanActivity.class)); break;
             case 1: pickPrefix(true); break;

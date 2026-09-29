@@ -374,6 +374,10 @@ public final class ExcelExporter {
 
     private static void run(Context context, Job job) {
         if (!isUsable(context)) return;
+        if (!LicenseManager.recordExport(context)) {
+            blockExport(context);
+            return;
+        }
         Toast.makeText(context, R.string.export_working, Toast.LENGTH_SHORT).show();
         new Thread(() -> {
             try {
@@ -394,6 +398,14 @@ public final class ExcelExporter {
         if (!(context instanceof Activity)) return true;
         Activity activity = (Activity) context;
         return !activity.isFinishing() && !activity.isDestroyed();
+    }
+
+    /** Free exports are gone: stop here and point the user at the activation screen. */
+    private static void blockExport(Context context) {
+        Toast.makeText(context, R.string.license_blocked_export, Toast.LENGTH_LONG).show();
+        if (context instanceof Activity) {
+            LicenseActivity.promptForActivation((Activity) context);
+        }
     }
 
     private static void cell(Row row, int index, String value, CellStyle style) {
