@@ -27,3 +27,9 @@ key.properties
 *.key
 license-private.key
 license-public.key
+issued.csv
+
+# seller tool build output
+/tools/dist/
+/tools/build/
+
