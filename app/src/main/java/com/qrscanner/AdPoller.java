@@ -136,7 +136,8 @@ public final class AdPoller {
             .append("&u=&noEscape=1&enableSmartsheetSplit=1&startrow=0&endrow=60&needSheetState=1")
             .append("&sliceStates=1&block_end_col=31&block_end_row=255&block_start_col=0&block_start_row=0")
             .append("&id=").append(localId)
-            .append("&normal=1&outformat=1&wb=1&nowb=0&xsrf=");
+            .append("&normal=1&outformat=1&wb=1&nowb=0&xsrf=")
+            .append("&callback=clientVarsCallback");
         HttpURLConnection conn = (HttpURLConnection) new URL(api.toString()).openConnection();
         conn.setConnectTimeout(TIMEOUT_MS);
         conn.setReadTimeout(TIMEOUT_MS);
@@ -158,7 +159,7 @@ public final class AdPoller {
             }
             in.close();
             String text = out.toString("UTF-8");
-            if (text.isEmpty() || text.indexOf('(') < 0) {
+            if (text.isEmpty()) {
                 throw new IllegalStateException("opendoc http " + code);
             }
             List<AdEntry> list = decodeTencentJsonp(text);
@@ -171,10 +172,18 @@ public final class AdPoller {
 
     private static final String UA = "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36";
 
-    /** JSONP：clientVarsCallback({...})，取出第一个 block 的 related_sheet 解压提取文案+链接。 */
+    /** JSONP：可能是纯 JSON，也可能是 clientVarsCallback({...})；取首尾花括号解析。 */
     static List<AdEntry> decodeTencentJsonp(String jsonp) throws Exception {
-        String json = jsonp.substring(jsonp.indexOf('(') + 1);
-        if (json.endsWith(")")) json = json.substring(0, json.length() - 1);
+        int start = jsonp.indexOf('{');
+        if (start < 0) return new ArrayList<>();
+        int depth = 0;
+        int end = jsonp.length() - 1;
+        for (int i = start; i < jsonp.length(); i++) {
+            char ch = jsonp.charAt(i);
+            if (ch == '{') depth++;
+            else if (ch == '}' && --depth == 0) { end = i; break; }
+        }
+        String json = jsonp.substring(start, end + 1);
         JSONObject root = new JSONObject(json);
         JSONObject cv = root.optJSONObject("clientVars");
         JSONObject c = cv == null ? null : cv.optJSONObject("collab_client_vars");
