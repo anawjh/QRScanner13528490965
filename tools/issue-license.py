@@ -34,12 +34,38 @@ CODE_GROUP = 16
 BLOB_BYTES = 80                 # fixed, multiple of 5
 CODE_CHARS = BLOB_BYTES * 8 // 5  # 128
 
-# Keys live outside the repository on purpose: the private key must never be
-# committed, and a temp directory can be purged at any time.
-KEY_DIR = os.environ.get("QRSCANNER_KEY_DIR") or os.path.join(
-    os.path.expanduser("~"), ".qrscanner-license")
-PRIV_PATH = os.path.join(KEY_DIR, "license-private.key")
-PUB_PATH = os.path.join(KEY_DIR, "license-public.key")
+def _app_dir() -> str:
+    """Directory the program lives in, not the one it was launched from."""
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(os.path.abspath(sys.executable))
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+# Key lookup order: an explicit override, then next to the program (so the whole
+# folder can be carried to another PC), then the user profile. The first two are
+# intentionally portable: a seller moving machines should only copy one folder.
+# The private key must never be committed, and a temp directory can be purged.
+KEY_DIR_CANDIDATES = [
+    os.environ.get("QRSCANNER_KEY_DIR"),
+    _app_dir(),
+    os.path.join(os.path.expanduser("~"), ".qrscanner-license"),
+]
+KEY_DIR_CANDIDATES = [d for d in KEY_DIR_CANDIDATES if d]
+
+PRIV_NAME = "license-private.key"
+PUB_NAME = "license-public.key"
+
+
+def _first_existing_dir() -> str:
+    for d in KEY_DIR_CANDIDATES:
+        if os.path.exists(os.path.join(d, PRIV_NAME)):
+            return d
+    return KEY_DIR_CANDIDATES[-1]
+
+
+KEY_DIR = _first_existing_dir()
+PRIV_PATH = os.path.join(KEY_DIR, PRIV_NAME)
+PUB_PATH = os.path.join(KEY_DIR, PUB_NAME)
 
 
 # ---------------------------------------------------------------- base32
@@ -110,6 +136,8 @@ def load_private():
     if not os.path.exists(PRIV_PATH):
         raise SystemExit("private key not found: %s\nrun: python issue-license.py keygen"
                          % PRIV_PATH)
+    if not os.access(PRIV_PATH, os.R_OK):
+        raise SystemExit("private key is not readable: %s" % PRIV_PATH)
     with open(PRIV_PATH, "rb") as f:
         return serialization.load_der_private_key(f.read(), password=None)
 

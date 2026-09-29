@@ -32,4 +32,5 @@ issued.csv
 # seller tool build output
 /tools/dist/
 /tools/build/
+/tools/portable/
 

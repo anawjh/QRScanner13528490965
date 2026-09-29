@@ -171,8 +171,8 @@ class LicenseTool(tk.Tk):
                 text="未找到私钥：%s\n请把 license-private.key 放到该目录后再打开本程序。"
                      % core.PRIV_PATH, fg="#e53935")
             messagebox.showerror(APP_TITLE,
-                                 "未找到私钥文件：\n%s\n\n请把 license-private.key "
-                                 "放到该目录后重新打开。" % core.PRIV_PATH)
+                                 "未找到私钥文件。\n\n请把 license-private.key 放到：\n%s\n\n"
+                                 "也就是本程序所在的文件夹。" % core.KEY_DIR)
         self._load_history()
 
     def _paste_machine(self):
