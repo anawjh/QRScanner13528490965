@@ -77,7 +77,10 @@ public class AdFooterView extends FrameLayout {
         gradient = new GradientDrawable();
         setBackground(gradient);
         setOnClickListener(v -> performClick());
-        setOnLongClickListener(v -> { showSourceDialog(); return true; });
+        setOnLongClickListener(v -> {
+            if (!currentLink.isEmpty()) openLink(); else showSourceDialog();
+            return true;
+        });
         applyCurrent();
     }
 
@@ -180,8 +183,8 @@ public class AdFooterView extends FrameLayout {
     // ======================== 点击跳转 ========================
 
     /**
-     * 长按广告栏查看当前内容来源与最近一次拉取结果，并可立即手动拉取一次。
-     * 不占用菜单，便于确认联网更新是否真的生效。
+     * 无链接时，长按广告栏打开来源诊断，便于确认联网更新是否真的生效。
+     * 有链接时点击/长按都是直接跳到指定链接。
      */
     private void showSourceDialog() {
         Context ctx = getContext();
@@ -238,6 +241,12 @@ public class AdFooterView extends FrameLayout {
             Toast.makeText(getContext(), R.string.ad_no_link, Toast.LENGTH_SHORT).show();
             return true;
         }
+        openLink();
+        return true;
+    }
+
+    /** 打开当前广告的跳转链接（浏览器/外部应用）。 */
+    private void openLink() {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(currentLink));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try {
@@ -246,7 +255,6 @@ public class AdFooterView extends FrameLayout {
             Toast.makeText(getContext(),
                 e.getMessage() == null ? currentLink : e.getMessage(), Toast.LENGTH_LONG).show();
         }
-        return true;
     }
 
     private static class GradientDrawable extends Drawable {
