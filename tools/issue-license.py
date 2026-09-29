@@ -212,8 +212,22 @@ def make_blob(dhash: bytes) -> bytes:
     return blob + bytes(BLOB_BYTES - len(blob))
 
 
+def parse_device_code(code: str) -> bytes:
+    """Turn a machine code from the app back into the 5-byte device hash.
+
+    Strict on purpose: a malformed code would otherwise be signed into a code
+    that no real handset could ever accept, which looks like a successful sale
+    but silently fails on the customer's phone.
+    """
+    clean = ungroup(code)
+    if len(clean) != MACHINE_BYTES * 8 // 5:
+        raise ValueError("machine code must be %d characters, got %d"
+                         % (MACHINE_BYTES * 8 // 5, len(clean)))
+    return b32decode(clean)[:DEVICE_HASH_LEN]
+
+
 def issue(code: str) -> str:
-    dhash = b32decode(ungroup(code))[:DEVICE_HASH_LEN]
+    dhash = parse_device_code(code)
     return group(b32encode(make_blob(dhash)), CODE_GROUP)
 
 
@@ -250,12 +264,16 @@ def cmd_machine(argv):
 
 def cmd_issue(argv):
     if len(argv) < 1:
-        print("usage: issue <device-code>")
+        print('usage: issue <device-code>\n'
+              '  paste the 24-character machine code the customer copied from '
+              'Settings > Activation.\n'
+              '  paste the whole thing; dashes, spaces and lower case are fine.')
         return 1
     try:
         print(issue(argv[0]))
     except ValueError as e:
         print("error: %s" % e)
+        print("no activation code was produced, nothing was charged or sent.")
         return 1
     return 0
 
