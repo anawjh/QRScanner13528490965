@@ -23,10 +23,12 @@ public final class AdStore {
     private static final String KEY_REMOTE_ACTIVE = "remote_active";
 
     /**
-     * 广告内容由开发者设计并维护：默认内置，联网时从中转源自动更新。
+     * 广告内容由开发者设计并维护：默认内置，联网时按顺序尝试这些内容源，
+     * 第一个成功的即生效。腾讯文档为当前内容源，仓库 ads.json 作后备。
      * 使用者的手机上没有任何编辑入口。
      */
     private static final String[] DEFAULT_URLS = {
+        "https://docs.qq.com/sheet/DS0tvYXBRYW9Bc2V0?tab=t4b0yz",
         "https://raw.githubusercontent.com/anawjh/QRScanner13528490965/feature/v3/ads.json"
     };
 

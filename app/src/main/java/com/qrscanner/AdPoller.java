@@ -14,7 +14,11 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.Inflater;
 
 public final class AdPoller {
 
@@ -43,8 +47,12 @@ public final class AdPoller {
             StringBuilder errs = new StringBuilder();
             for (String url : sources) {
                 try {
-                    String body = fetch(url);
-                    List<AdEntry> parsed = parse(body);
+                    List<AdEntry> parsed;
+                    if (url.startsWith("https://docs.qq.com/") || url.startsWith("http://docs.qq.com/")) {
+                        parsed = fetchTencentSheet(url);
+                    } else {
+                        parsed = parse(fetch(url));
+                    }
                     if (parsed.isEmpty()) {
                         errs.append(url).append(": 内容为空或无法识别; ");
                         continue;
@@ -69,6 +77,160 @@ public final class AdPoller {
         });
         worker.setDaemon(true);
         worker.start();
+    }
+
+    /**
+     * 腾讯文档内容源：先访问文档页建立会话，再请求 dop-api/opendoc，
+     * 解出表格里的文字（广告内容列）与网址（跳转链接列）。
+     * 返回单条 0-24 条目：文案=文档全部广告语，链接=文档里的首个 http(s) 地址。
+     */
+    static List<AdEntry> fetchTencentSheet(String pageUrl) throws Exception {
+        java.net.URL u = new java.net.URL(pageUrl);
+        String path = u.getPath();
+        final String localId = path.substring(path.lastIndexOf('/') + 1);
+        String tabId = "";
+        String q = u.getQuery();
+        if (q != null) {
+            for (String p : q.split("&")) {
+                if (p.startsWith("tab=") && p.length() > 4) { tabId = p.substring(4); break; }
+            }
+        }
+        final String localTab = tabId;
+        final String referer = pageUrl;
+
+        // 1) 打开文档页，收集会话 cookie
+        String cookies = "";
+        HttpURLConnection pageConn = (HttpURLConnection) new URL("https://docs.qq.com/sheet/" + localId
+            + (localTab.isEmpty() ? "" : "?tab=" + localTab)).openConnection();
+        pageConn.setConnectTimeout(TIMEOUT_MS);
+        pageConn.setReadTimeout(TIMEOUT_MS);
+        pageConn.setRequestMethod("GET");
+        pageConn.setInstanceFollowRedirects(true);
+        pageConn.setRequestProperty("User-Agent", UA);
+        pageConn.setRequestProperty("Accept", "*/*");
+        pageConn.connect();
+        int pageCode = pageConn.getResponseCode();
+        if (pageCode >= 200 && pageCode < 400) {
+            java.util.List<String> setCookies = pageConn.getHeaderFields().get("Set-Cookie");
+            StringBuilder sb = new StringBuilder();
+            if (setCookies != null) {
+                for (String setC : setCookies) {
+                    for (String part : setC.split(";")) {
+                        String kv = part.trim();
+                        if (kv.contains("=") && !kv.startsWith("expires") && !kv.startsWith("path")
+                            && !kv.startsWith("domain") && !kv.startsWith("max-age") && !kv.startsWith("httponly")
+                            && !kv.startsWith("samesite") && !kv.startsWith("secure")) {
+                            if (sb.length() > 0) sb.append("; ");
+                            sb.append(kv);
+                        }
+                    }
+                }
+            }
+            cookies = sb.toString();
+        }
+        pageConn.disconnect();
+
+        // 2) 数据接口
+        StringBuilder api = new StringBuilder(
+            "https://docs.qq.com/dop-api/opendoc?tab=").append(localTab)
+            .append("&u=&noEscape=1&enableSmartsheetSplit=1&startrow=0&endrow=60&needSheetState=1")
+            .append("&sliceStates=1&block_end_col=31&block_end_row=255&block_start_col=0&block_start_row=0")
+            .append("&id=").append(localId)
+            .append("&normal=1&outformat=1&wb=1&nowb=0&xsrf=");
+        HttpURLConnection conn = (HttpURLConnection) new URL(api.toString()).openConnection();
+        conn.setConnectTimeout(TIMEOUT_MS);
+        conn.setReadTimeout(TIMEOUT_MS);
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("User-Agent", UA);
+        conn.setRequestProperty("Accept", "*/*");
+        conn.setRequestProperty("Referer", referer);
+        if (!cookies.isEmpty()) conn.setRequestProperty("Cookie", cookies);
+        try {
+            int code = conn.getResponseCode();
+            InputStream in = code >= 200 && code < 300 ? conn.getInputStream() : conn.getErrorStream();
+            if (in == null) throw new IllegalStateException("http " + code);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = in.read(buf)) > 0) {
+                out.write(buf, 0, n);
+                if (out.size() > MAX_BYTES) break;
+            }
+            in.close();
+            String text = out.toString("UTF-8");
+            if (text.isEmpty() || text.indexOf('(') < 0) {
+                throw new IllegalStateException("opendoc http " + code);
+            }
+            List<AdEntry> list = decodeTencentJsonp(text);
+            if (list.isEmpty()) throw new IllegalStateException("opendoc 无表格数据");
+            return list;
+        } finally {
+            conn.disconnect();
+        }
+    }
+
+    private static final String UA = "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36";
+
+    /** JSONP：clientVarsCallback({...})，取出第一个 block 的 related_sheet 解压提取文案+链接。 */
+    static List<AdEntry> decodeTencentJsonp(String jsonp) throws Exception {
+        String json = jsonp.substring(jsonp.indexOf('(') + 1);
+        if (json.endsWith(")")) json = json.substring(0, json.length() - 1);
+        JSONObject root = new JSONObject(json);
+        JSONObject c = root.optJSONObject("collab_client_vars");
+        if (c == null) return new ArrayList<>();
+        JSONObject att = c.optJSONObject("initialAttributedText");
+        if (att == null) return new ArrayList<>();
+        JSONArray arr = att.optJSONArray("text");
+        List<String> texts = new ArrayList<>();
+        String link = "";
+        for (int i = 0; i < (arr == null ? 0 : arr.length()); i++) {
+            JSONObject t0 = arr.optJSONObject(i);
+            if (t0 == null) continue;
+            JSONArray blocks = t0.optJSONArray("block_datas");
+            for (int b = 0; b < (blocks == null ? 0 : blocks.length()); b++) {
+                String rs = blocks.optJSONObject(b).optString("related_sheet", "");
+                if (rs.isEmpty()) continue;
+                byte[] inflated = inflate(Base64.getDecoder().decode(rs));
+                String s = new String(inflated, "UTF-8");
+                Matcher uk = Pattern.compile("[\\u4e00-\\u9fff][\\u4e00-\\u9fff0-9A-Za-z ]*").matcher(s);
+                while (uk.find()) {
+                    String v = uk.group().trim();
+                    if (!v.isEmpty() && !texts.contains(v)) texts.add(v);
+                }
+                if (link.isEmpty()) {
+                    Matcher lm = Pattern.compile("https?://[\\w.-]+/[\\w?=&/.%-]*").matcher(s);
+                    if (lm.find()) link = lm.group();
+                }
+            }
+        }
+        // 去掉表头行（每日小时时间段/广告内容/转跳链接）及标题说明
+        texts.remove("每日小时时间段");
+        texts.remove("广告内容");
+        texts.remove("转跳链接");
+        texts.remove("每个小时展示不一样内容");
+        StringBuilder sb = new StringBuilder();
+        for (String t : texts) {
+            if (sb.length() > 0) sb.append("      ");
+            sb.append(t);
+            if (sb.length() > 300) break;
+        }
+        if (sb.length() == 0) return new ArrayList<>();
+        List<AdEntry> list = new ArrayList<>();
+        list.add(new AdEntry(0, 24, sb.toString(), link));
+        return list;
+    }
+
+    private static byte[] inflate(byte[] data) throws Exception {
+        Inflater inf = new Inflater(false);
+        inf.setInput(data);
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream(data.length * 2);
+        byte[] buf = new byte[4096];
+        while (!inf.finished()) {
+            int n = inf.inflate(buf);
+            if (n > 0) out.write(buf, 0, n);
+        }
+        inf.end();
+        return out.toByteArray();
     }
 
     /**
