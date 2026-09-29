@@ -136,17 +136,13 @@ public class AdFooterView extends FrameLayout {
         tvAdText.setTranslationX(0f);
         String unit = currentText + SEP;
 
-        tvAdText.setText(unit);
-        tvAdText.measure(
-            MeasureSpec.makeMeasureSpec(viewWidth, MeasureSpec.AT_MOST),
-            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-        int unitWidth = tvAdText.getMeasuredWidth();
-        if (unitWidth <= 0) {
+        float unitWidth = tvAdText.getPaint().measureText(unit);
+        if (unitWidth <= 0f) {
             tvAdText.setText(currentText);
             return;
         }
 
-        int copies = Math.max(2, (int) Math.ceil((2.0 * viewWidth) / unitWidth) + 1);
+        int copies = (int) Math.ceil((2.0 * viewWidth) / unitWidth) + 2;
         StringBuilder sb = new StringBuilder(unit.length() * copies);
         for (int i = 0; i < copies; i++) sb.append(unit);
         tvAdText.setText(sb.toString());
