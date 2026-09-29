@@ -25,6 +25,7 @@ public final class AdPoller {
     private static final String TAG = "AdPoller";
     private static final int TIMEOUT_MS = 8000;
     private static final int MAX_BYTES = 256 * 1024;
+    private static final Pattern ROW_TEXT = Pattern.compile("[\\u4e00-\\u9fff][\\u4e00-\\u9fff0-9A-Za-z ]*");
 
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static Thread worker;
@@ -191,7 +192,7 @@ public final class AdPoller {
         JSONObject att = c.optJSONObject("initialAttributedText");
         if (att == null) return new ArrayList<>();
         JSONArray arr = att.optJSONArray("text");
-        List<String> texts = new ArrayList<>();
+        StringBuilder rawCells = new StringBuilder();
         String link = "";
         for (int i = 0; i < (arr == null ? 0 : arr.length()); i++) {
             JSONObject t0 = arr.optJSONObject(i);
@@ -202,32 +203,40 @@ public final class AdPoller {
                 if (rs.isEmpty()) continue;
                 byte[] inflated = inflate(Base64.getDecoder().decode(rs));
                 String s = new String(inflated, "UTF-8");
-                Matcher uk = Pattern.compile("[\\u4e00-\\u9fff][\\u4e00-\\u9fff0-9A-Za-z ]*").matcher(s);
-                while (uk.find()) {
-                    String v = uk.group().trim();
-                    if (!v.isEmpty() && !texts.contains(v)) texts.add(v);
-                }
+                rawCells.append(s);
                 if (link.isEmpty()) {
                     Matcher lm = Pattern.compile("https?://[\\w.-]+/[\\w?=&/.%-]*").matcher(s);
                     if (lm.find()) link = lm.group();
                 }
             }
         }
-        // 去掉表头行（每日小时时间段/广告内容/转跳链接）及标题说明
-        texts.remove("每日小时时间段");
-        texts.remove("广告内容");
-        texts.remove("转跳链接");
-        texts.remove("每个小时展示不一样内容");
-        StringBuilder sb = new StringBuilder();
-        for (String t : texts) {
-            if (sb.length() > 0) sb.append("      ");
-            sb.append(t);
-            if (sb.length() > 300) break;
-        }
-        if (sb.length() == 0) return new ArrayList<>();
         List<AdEntry> list = new ArrayList<>();
-        list.add(new AdEntry(0, 24, sb.toString(), link));
+        String[] segments = rawCells.toString().split(Pattern.quote(ROW_MARKER));
+        String lastGood = "";
+        for (int i = 0; i < 24 && i < segments.length; i++) {
+            String clean = cleanSheetSegment(segments[i]);
+            if (clean.isEmpty()) clean = lastGood;
+            if (clean.isEmpty()) continue;
+            lastGood = clean;
+            list.add(new AdEntry(i, i + 1, clean, link));
+        }
         return list;
+    }
+
+    private static final String ROW_MARKER = "每个小时展示不一样内容";
+
+    private static String cleanSheetSegment(String seg) {
+        StringBuilder sb = new StringBuilder();
+        Matcher m = ROW_TEXT.matcher(seg);
+        boolean first = true;
+        while (m.find()) {
+            String v = m.group().trim();
+            if (v.isEmpty() || v.equals("每日小时时间段") || v.equals("广告内容") || v.equals("转跳链接")) continue;
+            if (!first) sb.append('，');
+            sb.append(v);
+            first = false;
+        }
+        return sb.toString().replaceAll("\\s+", " ").trim();
     }
 
     private static byte[] inflate(byte[] data) throws Exception {
