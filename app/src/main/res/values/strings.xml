@@ -275,12 +275,7 @@
     <string name="license_goto">去激活</string>
     <string name="license_cancel">稍后再说</string>
     <string name="license_menu_locked">需激活</string>
-    <string name="license_test_mode">开发者测试模式</string>
-    <string name="license_test_mode_desc">模拟试用次数已用满，用于快速测试激活拦截</string>
-    <string name="license_test_on">测试模式已开启，导出将被拦截</string>
-    <string name="license_test_off">测试模式已关闭</string>
     <string name="license_selftest_ok">验签自检通过</string>
     <string name="license_selftest_fail">验签自检失败，请勿输入激活码</string>
-    <string name="license_reset_trial">重置试用计数</string>
     <string name="license_bound_note">激活码与本机型号绑定，一机一码；卸载重装后需要重新激活。</string>
 </resources>

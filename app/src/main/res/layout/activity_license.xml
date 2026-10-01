@@ -226,61 +226,7 @@
                     android:textSize="12sp" />
             </LinearLayout>
 
-            <!-- 开发者测试 -->
-            <LinearLayout
-                android:id="@+id/panelTest"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical"
-                android:background="#FFF8E1"
-                android:padding="14dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/license_test_mode"
-                            android:textColor="#212121"
-                            android:textSize="15sp" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/license_test_mode_desc"
-                            android:textColor="#757575"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-
-                    <Switch
-                        android:id="@+id/swTestMode"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/btnResetTrial"
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:layout_marginTop="10dp"
-                    android:text="@string/license_reset_trial"
-                    android:textColor="#1565C0"
-                    android:backgroundTint="#FFFFFF"
-                    android:stateListAnimator="@null" />
             </LinearLayout>
-        </LinearLayout>
     </ScrollView>
 
     <com.qrscanner.AdFooterView

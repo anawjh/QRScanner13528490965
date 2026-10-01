@@ -37,7 +37,6 @@ public final class LicenseManager {
     private static final String PREF_NAME = "app_license";
     private static final String KEY_ACTIVATED = "activated";
     private static final String KEY_COUNT = "export_count";
-    private static final String KEY_TEST_MODE = "dev_test_mode";
 
     /** 32 symbols, I/O/0/1 omitted so codes survive being read aloud. */
     private static final String ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -91,29 +90,9 @@ public final class LicenseManager {
         return left < 0 ? 0 : left;
     }
 
-    public static boolean isTestMode(Context context) {
-        return prefs(context).getBoolean(KEY_TEST_MODE, false);
-    }
-
-    /**
-     * Developer switch: pretending the trial is already used up, so the activation
-     * prompt and the blocked export paths can be checked without 100 exports.
-     */
-    public static void setTestMode(Context context, boolean on) {
-        SharedPreferences.Editor editor = prefs(context).edit();
-        editor.putBoolean(KEY_TEST_MODE, on);
-        if (on) editor.putInt(KEY_COUNT, FREE_TRIAL_EXPORTS);
-        editor.apply();
-    }
-
-    public static void resetTrial(Context context) {
-        prefs(context).edit().putInt(KEY_COUNT, 0).apply();
-    }
-
     /** True while the trial still allows exporting. */
     public static boolean canExport(Context context) {
         if (isActivated(context)) return true;
-        if (isTestMode(context)) return false;
         return exportCount(context) < FREE_TRIAL_EXPORTS;
     }
 
@@ -123,7 +102,6 @@ public final class LicenseManager {
      */
     public static boolean recordExport(Context context) {
         if (isActivated(context)) return true;
-        if (isTestMode(context)) return false;
         int next = exportCount(context) + 1;
         prefs(context).edit().putInt(KEY_COUNT, next).apply();
         return next <= FREE_TRIAL_EXPORTS;
@@ -214,7 +192,6 @@ public final class LicenseManager {
         SharedPreferences.Editor editor = prefs(context).edit();
         editor.putBoolean(KEY_ACTIVATED, true);
         editor.putInt(KEY_COUNT, 0);
-        editor.putBoolean(KEY_TEST_MODE, false);
         editor.apply();
         return true;
     }

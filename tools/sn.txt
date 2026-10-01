@@ -1,0 +1,10 @@
+完整流程
+客户那边（App 设置 → 软件激活）：
+
+App 读取本机 ANDROID_ID、厂商、型号，拼成字符串做 SHA-256
+取前 15 字节 → base32 → 24 位机器码，显示在页面上
+点「复制机器码」发给你
+你这边（cd F:\open\qr\QRScanner-v3\tools）：
+
+python issue-license.py issue XXFKPV-PKMF3U-AV9L5Z-5J9PL7
+输出一行 128 位码，原样发给客户。横线、空格、小写都能识别，客户粘贴时截断或多选到别的内容会直接报错，不会签出废码。

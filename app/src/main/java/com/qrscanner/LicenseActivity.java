@@ -13,7 +13,6 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,7 +31,6 @@ public class LicenseActivity extends AppCompatActivity {
     private TextView tvSelfTest;
     private EditText etCode;
     private Button btnActivate;
-    private Switch swTestMode;
     private boolean fromBlocked;
 
     /** Shown when an export is refused, so the user learns why in one tap. */
@@ -67,12 +65,10 @@ public class LicenseActivity extends AppCompatActivity {
         tvSelfTest = findViewById(R.id.tvSelfTest);
         etCode = findViewById(R.id.etCode);
         btnActivate = findViewById(R.id.btnActivate);
-        swTestMode = findViewById(R.id.swTestMode);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         findViewById(R.id.btnCopy).setOnClickListener(v -> copyMachineCode());
         findViewById(R.id.btnActivate).setOnClickListener(v -> activate());
-        findViewById(R.id.btnResetTrial).setOnClickListener(v -> resetTrial());
 
         tvModel.setText(Build.MANUFACTURER + " " + Build.MODEL);
         tvMachineCode.setText(LicenseManager.deviceCode(this));
@@ -82,14 +78,6 @@ public class LicenseActivity extends AppCompatActivity {
         tvSelfTest.setTextColor(Color.parseColor(selfTest ? "#2E7D32" : "#E53935"));
         // without a working verifier every code would be rejected, so say so loudly
         btnActivate.setEnabled(selfTest);
-
-        swTestMode.setChecked(LicenseManager.isTestMode(this));
-        swTestMode.setOnCheckedChangeListener((v, checked) -> {
-            LicenseManager.setTestMode(this, checked);
-            refresh();
-            Toast.makeText(this, checked ? R.string.license_test_on : R.string.license_test_off,
-                Toast.LENGTH_SHORT).show();
-        });
 
         etCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -126,7 +114,6 @@ public class LicenseActivity extends AppCompatActivity {
 
         btnActivate.setVisibility(activated ? View.GONE : View.VISIBLE);
         etCode.setVisibility(activated ? View.GONE : View.VISIBLE);
-        findViewById(R.id.panelTest).setVisibility(activated ? View.GONE : View.VISIBLE);
     }
 
     private void copyMachineCode() {
@@ -170,13 +157,5 @@ public class LicenseActivity extends AppCompatActivity {
 
     private void hideResult() {
         tvResult.setVisibility(View.GONE);
-    }
-
-    private void resetTrial() {
-        LicenseManager.setTestMode(this, false);
-        swTestMode.setChecked(false);
-        LicenseManager.resetTrial(this);
-        refresh();
-        Toast.makeText(this, R.string.license_reset_trial, Toast.LENGTH_SHORT).show();
     }
 }

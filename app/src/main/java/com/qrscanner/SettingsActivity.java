@@ -64,7 +64,6 @@ public class SettingsActivity extends AppCompatActivity {
     private String licenseLabel() {
         if (LicenseManager.isActivated(this)) return getString(R.string.license_activated);
         int left = LicenseManager.remainingExports(this);
-        if (LicenseManager.isTestMode(this)) return getString(R.string.license_test_mode);
         return getString(R.string.license_trial_left, left);
     }
 

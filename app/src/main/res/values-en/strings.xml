@@ -270,12 +270,7 @@ or
     <string name="license_goto">Activate</string>
     <string name="license_cancel">Not now</string>
     <string name="license_menu_locked">Activate required</string>
-    <string name="license_test_mode">Developer test mode</string>
-    <string name="license_test_mode_desc">Pretend the trial is used up to test the activation flow</string>
-    <string name="license_test_on">Test mode on, exports are blocked</string>
-    <string name="license_test_off">Test mode off</string>
     <string name="license_selftest_ok">Signature self-test passed</string>
     <string name="license_selftest_fail">Signature self-test failed, do not enter an activation code</string>
-    <string name="license_reset_trial">Reset trial counter</string>
     <string name="license_bound_note">The activation code is bound to this device model, one code per device; you will need to activate again after a reinstall.</string>
 </resources>
